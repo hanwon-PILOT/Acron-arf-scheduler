@@ -1,0 +1,1252 @@
+{
+  "version": 1,
+  "meta": {
+    "noteKo": "PPC·IRA·CASEL.1·CASEL.2 레슨 코드는 제공된 TCO 목록과 일치합니다. PDF 코스 드롭다운에 CASEL1/CASEL2가 없으면 앱이 옵션을 추가합니다."
+  },
+  "courses": [
+    {
+      "id": "ppc",
+      "shortCode": "PPC",
+      "name": "Private Pilot ASEL (PPC)",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "aatdFtd",
+          "label": "AATD/FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "solo",
+          "label": "Solo"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageOral",
+          "label": "Stage Oral"
+        },
+        {
+          "key": "stageFlight",
+          "label": "Stage Flight"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "12-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "13-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "14-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "15-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "16-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "17-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "18-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "19-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "20-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "21-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "22-DLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "23-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "24-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "25-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "26-DXCN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "27-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "28-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "29-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "30-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "31-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "32-DSL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "33-DSL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "34-DSL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "35-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "36-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "36a (CAAC/CAA/KPP)-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "36b (KPP)-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "37-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "38-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "39-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "40-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
+    },
+    {
+      "id": "ira",
+      "shortCode": "IRA",
+      "name": "IRC — Instrument Airplane (IRA)",
+      "timeColumns": [
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "aatdFtd",
+          "label": "AA TD/FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageCheckOral",
+          "label": "Stage Check Oral"
+        },
+        {
+          "key": "stageCheckFlight",
+          "label": "Stage Check Flight"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "12-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "13-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "14-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "15-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "16-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "17-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "18-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "19-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "20-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "21-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "22-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "23-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "24-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "25-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "26-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "27-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "28-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "29-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "30-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "31-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "32-AA TD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "33-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "34-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "35-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "36-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "37-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "38-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "39-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "40-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "41-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "42-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "43-STF (EOC)",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
+    },
+    {
+      "id": "casel1",
+      "shortCode": "CASEL1",
+      "name": "Commercial ASEL — CASEL.1",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBriefOral",
+          "label": "Ground Brief/ Oral"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "ftd",
+          "label": "FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "soloPic",
+          "label": "Solo/PIC"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageCheck",
+          "label": "Stage Check"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-DFT",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-DFT",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-DXCN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "12-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "13-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "14-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "15-DLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "16-DLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "17-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "18-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "19-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "20-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "21-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "22-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "23-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "24-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "25-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
+    },
+    {
+      "id": "casel2",
+      "shortCode": "CASEL2",
+      "name": "Commercial ASEL — CASEL.2",
+      "timeColumns": [
+        {
+          "key": "schedulableTime",
+          "label": "Schedulable Time"
+        },
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre-Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post-Brief"
+        },
+        {
+          "key": "seFtd",
+          "label": "S.E. FTD"
+        },
+        {
+          "key": "meFtd",
+          "label": "M.E. FTD"
+        },
+        {
+          "key": "seAircraft",
+          "label": "S.E. Aircraft"
+        },
+        {
+          "key": "meAircraft",
+          "label": "M.E. Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "solo",
+          "label": "Solo"
+        },
+        {
+          "key": "soloXc",
+          "label": "Solo X-C"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-AATD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-AATD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-AATD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-AATD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "12-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "13-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "14-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "15-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "16-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "17-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "18-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "19-AATD/FTD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "20-UPRT",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "21-UPRT",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "22-UPRT",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "23-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "24-SOLO",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "25-SOLO",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "26-SOLO",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "27-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "28-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 2,
+          "code": "29-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "30-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "31-DXCN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "32-SLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "33-SLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "34-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "35-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "36-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "37-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "38-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "39-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "40-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "41-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "42-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "43-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "44-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "45-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "46-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "47-SXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "48-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "49-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "50-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "51-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "52-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "53-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "54-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "55-GB",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "56-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "57-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 4,
+          "code": "58-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
+    }
+  ]
+}

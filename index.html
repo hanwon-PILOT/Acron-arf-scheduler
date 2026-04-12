@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Acron ARF — Schedule Request</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Acron Aviation — ARF Schedule Request</h1>
+      <p>Fill the form in your browser (Mac or iPhone). Data stays on this device unless you download a PDF.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Instructor &amp; date</h2>
+        <div class="grid-2">
+          <div>
+            <label for="instructorName">Instructor name</label>
+            <input type="text" id="instructorName" autocomplete="name" />
+          </div>
+          <div>
+            <label for="requestDate">Date</label>
+            <input type="date" id="requestDate" />
+          </div>
+          <div>
+            <label for="requestDay">Day</label>
+            <input type="text" id="requestDay" placeholder="Auto from date (SUN–SAT)" autocomplete="off" />
+          </div>
+        </div>
+
+        <h3 class="subheading">1. Instructor qualifications</h3>
+        <div class="aircraft-row" id="qualInstructor">
+          <label class="cb"><input type="checkbox" data-q="instructor" data-k="CFI" /> CFI</label>
+          <label class="cb"><input type="checkbox" data-q="instructor" data-k="CFII" /> CFII</label>
+          <label class="cb"><input type="checkbox" data-q="instructor" data-k="MEI" /> MEI</label>
+          <label class="cb"><input type="checkbox" data-q="instructor" data-k="SPIN" /> SPIN</label>
+        </div>
+
+        <h3 class="subheading">2. Aircraft qualification</h3>
+        <div class="aircraft-row" id="aircraftChecks">
+          <label class="cb"><input type="checkbox" data-ac="PA-28" /> PA-28</label>
+          <label class="cb"><input type="checkbox" data-ac="SR-20" /> SR-20</label>
+          <label class="cb"><input type="checkbox" data-ac="C-172" /> C-172</label>
+          <label class="cb"><input type="checkbox" data-ac="C-172SP" /> C-172SP</label>
+          <label class="cb"><input type="checkbox" data-ac="PA-44" /> PA-44</label>
+        </div>
+
+        <h3 class="subheading">3. Additional course qualifications</h3>
+        <div class="aircraft-row" id="qualAdditional">
+          <label class="cb"><input type="checkbox" data-q="additionalCourse" data-k="cfiA141" /> CFI-A 141</label>
+          <label class="cb"><input type="checkbox" data-q="additionalCourse" data-k="cfiI141" /> CFI-I 141</label>
+          <label class="cb"><input type="checkbox" data-q="additionalCourse" data-k="mei141" /> MEI 141</label>
+        </div>
+
+        <h3 class="subheading">4. UK / EASA</h3>
+        <p class="hint">The PDF has two checkboxes for FI and IRI. If you check CRI, the text <code>UK/EASA: CRI</code> is added at the top of <strong>Notes to Scheduling</strong> in the PDF.</p>
+        <div class="aircraft-row" id="qualUk">
+          <label class="cb"><input type="checkbox" data-q="ukEasa" data-k="FI" /> FI</label>
+          <label class="cb"><input type="checkbox" data-q="ukEasa" data-k="IRI" /> IRI</label>
+          <label class="cb"><input type="checkbox" data-q="ukEasa" data-k="CRI" /> CRI</label>
+        </div>
+      </section>
+
+      <section class="card no-print">
+        <h2>Student names &amp; lists</h2>
+        <p class="hint">Student names and dropdown option lists are stored only in this browser.</p>
+        <div class="row-toolbar">
+          <button type="button" class="btn-primary" id="openNameManager">Manage names</button>
+          <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
+          <button type="button" class="btn-secondary" id="openFlightTypeListEditor">Type list</button>
+          <button type="button" class="btn-secondary" id="openEquipmentListEditor">Equipment list</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Schedule rows (max 10)</h2>
+        <div class="row-toolbar no-print">
+          <button type="button" class="btn-secondary" id="addRow">Add row</button>
+          <button type="button" class="btn-ghost" id="clearRows">Clear all rows</button>
+        </div>
+        <div id="scheduleRows"></div>
+      </section>
+
+      <section class="card">
+        <h2>Notes to Scheduling</h2>
+        <textarea id="notesScheduling" placeholder="Message to the scheduling team"></textarea>
+      </section>
+
+      <section class="card">
+        <h2>Group Manager</h2>
+        <select id="groupManager" aria-label="Group manager">
+          <option value="">— Select —</option>
+          <option value="ERIC DONAHUE">ERIC DONAHUE</option>
+          <option value="IAN OBRIEN">IAN OBRIEN</option>
+          <option value="ERICA LAMPHIER">ERICA LAMPHIER</option>
+          <option value="CYLE RAZEE">V CYLE RAZEE</option>
+          <option value="JOHN SLICK">JOHN SLICK</option>
+          <option value="RICK NILSSON (UK)">RICK NILSSON (UK)</option>
+        </select>
+      </section>
+
+      <footer class="actions no-print">
+        <button type="button" class="btn-primary" id="copyEmailBody">Copy summary</button>
+        <button type="button" class="btn-secondary" id="printPage">Print / Save as PDF</button>
+      </footer>
+
+      <p class="hint no-print" style="margin-top: 1rem">
+        Optional: fill from JSON on your Mac with <code>fill_arf_pdf.py</code>. Email:
+        SCHEDULING.SFB.CTS@ACRONAVIATION.COM
+      </p>
+
+      <section class="card no-print" style="margin-top: 1rem">
+        <h2>Hosting (not Mac-only)</h2>
+        <p class="hint" style="margin-bottom: 0">
+          You do <strong>not</strong> have to run this only on your Mac. Upload this folder (HTML, JS, CSS, <code>Master.pdf</code>, <code>courses.json</code>) to any static host:
+          <strong>GitHub Pages</strong>, <strong>Netlify</strong>, <strong>Cloudflare Pages</strong>, or your flight school website. Then open the site in Safari with an <code>https://</code> URL.
+          Google Drive “preview” is unreliable for JavaScript apps—use a real static host instead.
+        </p>
+      </section>
+
+      <section class="card no-print">
+        <h2>Download filled PDF</h2>
+        <p class="hint">
+          Values are written into the same fields as <code>Master.pdf</code>. The app loads <code>Master.pdf</code> from this folder. If you previously saved another PDF in the browser, use <strong>Change PDF template</strong> and pick the current
+          <code>Master.pdf</code> once.
+        </p>
+        <div class="row-toolbar">
+          <button type="button" class="btn-primary" id="downloadArfPdf">Download filled ARF PDF</button>
+          <label class="btn-secondary" style="cursor: pointer; display: inline-block; margin: 0; padding: 0.45rem 0.85rem">
+            <input type="file" id="arfTemplateFile" accept="application/pdf,.pdf" hidden />
+            Change PDF template
+          </label>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="nameModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-labelledby="nameModalTitle">
+        <h2 id="nameModalTitle">Student names</h2>
+        <p class="hint" style="margin-top: 0">
+          Optional <strong>Course</strong> per student: schedule rows pick that course automatically when you choose the student. You can still change the course on each row; the row choice is saved as that student’s default too.
+        </p>
+        <div>
+          <label for="newStudentName">Add name</label>
+          <div class="row-toolbar" style="margin-top: 0.25rem">
+            <input type="text" id="newStudentName" style="flex: 1" placeholder="Full name" />
+            <button type="button" class="btn-primary" id="addStudentBtn">Add</button>
+          </div>
+        </div>
+        <ul class="name-list" id="nameList"></ul>
+        <button type="button" class="btn-secondary" id="closeNameModal" style="width: 100%">Close</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="listEditorModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-labelledby="listEditorTitle">
+        <h2 id="listEditorTitle">Edit list</h2>
+        <p class="hint" id="listEditorHint"></p>
+        <div>
+          <label for="listEditorNew">Add item</label>
+          <div class="row-toolbar" style="margin-top: 0.25rem">
+            <input type="text" id="listEditorNew" style="flex: 1" />
+            <button type="button" class="btn-primary" id="listEditorAddBtn">Add</button>
+          </div>
+        </div>
+        <ul class="name-list" id="listEditorList"></ul>
+        <button type="button" class="btn-secondary" id="closeListEditorModal" style="width: 100%">Close</button>
+      </div>
+    </div>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
