@@ -15,6 +15,11 @@ const STORAGE_STUDENT_COURSE = "acron_arf_v1_student_course";
 const STORAGE_DRAFT = "acron_arf_v1_draft";
 const STORAGE_LAST_INSTRUCTOR = "acron_arf_v1_last_instructor";
 const STORAGE_INSTRUCTOR_HISTORY = "acron_arf_v1_instructor_history";
+const STORAGE_INSTRUCTOR_PROFILES = "acron_arf_v2_instructor_profiles";
+const STORAGE_LAST_ACTIVE_INSTRUCTOR = "acron_arf_v2_last_active_instructor";
+
+/** Prevents instructor <select> change handler while syncing from code. */
+let instructorSelectSuppress = false;
 const STORAGE_CADET = "acron_arf_v2_cadet_statuses";
 const STORAGE_FLIGHT_TYPES = "acron_arf_v2_flight_types";
 const STORAGE_EQUIPMENT = "acron_arf_v2_equipment_options";
@@ -219,46 +224,127 @@ function rememberInstructorName(name) {
   }
 }
 
-function refreshInstructorNameDatalist() {
-  const dl = document.getElementById("instructorNameList");
-  if (!dl) return;
-  dl.replaceChildren();
-  for (const name of loadInstructorHistory()) {
-    const opt = document.createElement("option");
-    opt.value = name;
-    dl.appendChild(opt);
+function profileKey(name) {
+  return String(name || "").trim();
+}
+
+function loadProfilesRaw() {
+  try {
+    const raw = localStorage.getItem(STORAGE_INSTRUCTOR_PROFILES);
+    const o = raw ? JSON.parse(raw) : {};
+    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+  } catch {
+    return {};
   }
 }
 
-function buildInitialState() {
-  const d = loadDraft();
-  const fallbackInstructor = getLastInstructorName();
-  if (d && d.rows && Array.isArray(d.rows)) {
-    return {
-      instructorName: String(d.instructorName || "").trim() || fallbackInstructor,
+function saveProfilesRaw(obj) {
+  localStorage.setItem(STORAGE_INSTRUCTOR_PROFILES, JSON.stringify(obj));
+}
+
+function listProfileNames() {
+  return Object.keys(loadProfilesRaw()).sort((a, b) => a.localeCompare(b, "en"));
+}
+
+function saveProfile(key, payload) {
+  const k = profileKey(key);
+  if (!k || !payload) return;
+  const all = loadProfilesRaw();
+  all[k] = { ...payload, instructorName: k };
+  saveProfilesRaw(all);
+}
+
+function getProfile(key) {
+  const k = profileKey(key);
+  return k ? loadProfilesRaw()[k] : null;
+}
+
+function deleteProfile(key) {
+  const k = profileKey(key);
+  if (!k) return;
+  const all = loadProfilesRaw();
+  delete all[k];
+  saveProfilesRaw(all);
+}
+
+function getLastActiveInstructor() {
+  try {
+    const s = localStorage.getItem(STORAGE_LAST_ACTIVE_INSTRUCTOR);
+    return s ? String(s).trim() : "";
+  } catch {
+    return "";
+  }
+}
+
+function setLastActiveInstructor(name) {
+  const t = profileKey(name);
+  try {
+    if (t) localStorage.setItem(STORAGE_LAST_ACTIVE_INSTRUCTOR, t);
+    else localStorage.removeItem(STORAGE_LAST_ACTIVE_INSTRUCTOR);
+  } catch {
+    /* */
+  }
+}
+
+/** One-time: put legacy single draft into per-instructor profiles. */
+function migrateLegacyDraftToProfiles() {
+  try {
+    const profiles = loadProfilesRaw();
+    if (Object.keys(profiles).length > 0) return;
+    const d = loadDraft();
+    if (!d || !Array.isArray(d.rows)) return;
+    const key = profileKey(d.instructorName) || profileKey(getLastInstructorName());
+    if (!key) return;
+    profiles[key] = {
+      instructorName: key,
       requestDay: d.requestDay || "",
       requestDate: d.requestDate || "",
       aircraft: d.aircraft || {},
-      qualifications: mergeQualifications(d.qualifications),
+      qualifications: d.qualifications || emptyQualifications(),
       notesScheduling: d.notesScheduling || "",
       groupManager: d.groupManager || "",
-      rows: d.rows.map((r) => {
-        const base = { ...emptyRow(), ...r };
-        delete base.time;
-        delete base.studentId;
-        delete base.timeFields;
-        if (base.courseId === "comm-141-55e") base.courseId = "casel1";
-        if (base.courseId === "casel-appd") base.courseId = "casel2";
-        if (!base.block && r.time) base.block = r.time;
-        if (!String(base.type || "").trim() && base.lessonCode) {
-          base.type = typeFromLessonCode(base.lessonCode);
-        }
-        return base;
-      }),
+      rows: d.rows,
     };
+    saveProfilesRaw(profiles);
+    setLastActiveInstructor(key);
+  } catch {
+    /* */
   }
+}
+
+function mapDraftRows(rows) {
+  return rows.map((r) => {
+    const base = { ...emptyRow(), ...r };
+    delete base.time;
+    delete base.studentId;
+    delete base.timeFields;
+    if (base.courseId === "comm-141-55e") base.courseId = "casel1";
+    if (base.courseId === "casel-appd") base.courseId = "casel2";
+    if (!base.block && r.time) base.block = r.time;
+    if (!String(base.type || "").trim() && base.lessonCode) {
+      base.type = typeFromLessonCode(base.lessonCode);
+    }
+    return base;
+  });
+}
+
+function normalizePayloadToState(d) {
+  if (!d || !Array.isArray(d.rows)) return null;
   return {
-    instructorName: fallbackInstructor,
+    instructorName: String(d.instructorName || "").trim(),
+    requestDay: d.requestDay || "",
+    requestDate: d.requestDate || "",
+    aircraft: d.aircraft && typeof d.aircraft === "object" ? { ...d.aircraft } : {},
+    qualifications: mergeQualifications(d.qualifications),
+    notesScheduling: d.notesScheduling || "",
+    groupManager: d.groupManager || "",
+    rows: mapDraftRows(d.rows),
+  };
+}
+
+function defaultEmptyState() {
+  return {
+    instructorName: getLastInstructorName(),
     requestDay: "",
     requestDate: "",
     aircraft: {},
@@ -269,10 +355,48 @@ function buildInitialState() {
   };
 }
 
+function draftSnapshot() {
+  return {
+    instructorName: state.instructorName,
+    requestDay: state.requestDay,
+    requestDate: state.requestDate,
+    aircraft: { ...state.aircraft },
+    qualifications: JSON.parse(JSON.stringify(state.qualifications)),
+    notesScheduling: state.notesScheduling,
+    groupManager: state.groupManager,
+    rows: state.rows.map((r) => ({ ...r })),
+  };
+}
+
+function buildInitialState() {
+  migrateLegacyDraftToProfiles();
+  const profiles = loadProfilesRaw();
+  const last = getLastActiveInstructor();
+  if (last && profiles[last]) {
+    const st = normalizePayloadToState(profiles[last]);
+    if (st) {
+      st.instructorName = last;
+      return st;
+    }
+  }
+  const d = loadDraft();
+  if (d && d.rows && Array.isArray(d.rows)) {
+    const st = normalizePayloadToState(d);
+    if (st) {
+      st.instructorName = String(d.instructorName || "").trim() || getLastInstructorName();
+      return st;
+    }
+  }
+  return defaultEmptyState();
+}
+
 let state = buildInitialState();
+/** Profile JSON key while editing; only matches typed name after blur (avoids saving "B", "Bo" while typing). */
+let profileSaveKey = profileKey(state.instructorName);
 let students = loadStudents();
 
 const els = {
+  instructorProfileSelect: document.getElementById("instructorProfileSelect"),
   instructorName: document.getElementById("instructorName"),
   requestDay: document.getElementById("requestDay"),
   requestDate: document.getElementById("requestDate"),
@@ -282,6 +406,8 @@ const els = {
   nameModal: document.getElementById("nameModal"),
   nameList: document.getElementById("nameList"),
   newStudentName: document.getElementById("newStudentName"),
+  instructorProfileModal: document.getElementById("instructorProfileModal"),
+  instructorProfileList: document.getElementById("instructorProfileList"),
   listEditorModal: document.getElementById("listEditorModal"),
   listEditorTitle: document.getElementById("listEditorTitle"),
   listEditorHint: document.getElementById("listEditorHint"),
@@ -289,21 +415,42 @@ const els = {
   listEditorNew: document.getElementById("listEditorNew"),
 };
 
+function refreshInstructorProfileSelect() {
+  const sel = els.instructorProfileSelect;
+  if (!sel) return;
+  const names = listProfileNames();
+  const cur = profileKey(state.instructorName);
+  instructorSelectSuppress = true;
+  sel.replaceChildren();
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "— Select instructor —";
+  sel.appendChild(opt0);
+  for (const n of names) {
+    const o = document.createElement("option");
+    o.value = n;
+    o.textContent = n;
+    sel.appendChild(o);
+  }
+  if (cur && names.includes(cur)) sel.value = cur;
+  else sel.value = "";
+  instructorSelectSuppress = false;
+}
+
 function persistSoon() {
   clearTimeout(persistSoon._t);
   persistSoon._t = setTimeout(() => {
-    rememberInstructorName(state.instructorName);
-    refreshInstructorNameDatalist();
-    saveDraft({
-      instructorName: state.instructorName,
-      requestDay: state.requestDay,
-      requestDate: state.requestDate,
-      aircraft: state.aircraft,
-      qualifications: state.qualifications,
-      notesScheduling: state.notesScheduling,
-      groupManager: state.groupManager,
-      rows: state.rows,
-    });
+    const snap = draftSnapshot();
+    const cur = profileKey(snap.instructorName);
+    rememberInstructorName(snap.instructorName);
+    refreshInstructorProfileSelect();
+    saveDraft(snap);
+    if (profileSaveKey && cur === profileSaveKey) {
+      saveProfile(profileSaveKey, snap);
+    }
+    if (cur) setLastActiveInstructor(cur);
+    else if (profileSaveKey) setLastActiveInstructor(profileSaveKey);
+    else setLastActiveInstructor("");
   }, 250);
 }
 
@@ -319,8 +466,8 @@ function ensureGroupManagerSelectValue() {
   sel.appendChild(o);
 }
 
-function bindHeader() {
-  refreshInstructorNameDatalist();
+function applyStateToDom() {
+  refreshInstructorProfileSelect();
   els.instructorName.value = state.instructorName;
   els.requestDay.value = state.requestDay;
   els.requestDate.value = state.requestDate;
@@ -336,8 +483,63 @@ function bindHeader() {
     }
   }
 
+  document.querySelectorAll("#aircraftChecks input[type=checkbox]").forEach((cb) => {
+    const k = cb.getAttribute("data-ac");
+    cb.checked = !!state.aircraft[k];
+  });
+  syncQualificationCheckboxesFromState();
+  renderRows();
+}
+
+function bindHeader() {
+  els.instructorProfileSelect.addEventListener("change", () => {
+    if (instructorSelectSuppress) return;
+    const prevKey = profileKey(state.instructorName);
+    if (prevKey) saveProfile(prevKey, draftSnapshot());
+    const selVal = els.instructorProfileSelect.value;
+    setLastActiveInstructor(selVal);
+    if (!selVal) {
+      state = defaultEmptyState();
+      state.instructorName = "";
+      profileSaveKey = "";
+    } else {
+      const prof = getProfile(selVal);
+      const st = prof ? normalizePayloadToState(prof) : null;
+      if (st) {
+        state = st;
+        state.instructorName = selVal;
+      } else {
+        state = defaultEmptyState();
+        state.instructorName = selVal;
+      }
+      profileSaveKey = profileKey(selVal);
+    }
+    applyStateToDom();
+    rememberInstructorName(state.instructorName);
+    persistSoon();
+  });
+
   els.instructorName.addEventListener("input", () => {
     state.instructorName = els.instructorName.value;
+    if (!instructorSelectSuppress) {
+      const v = profileKey(state.instructorName);
+      const names = listProfileNames();
+      instructorSelectSuppress = true;
+      if (v && names.includes(v)) els.instructorProfileSelect.value = v;
+      else els.instructorProfileSelect.value = "";
+      instructorSelectSuppress = false;
+    }
+    persistSoon();
+  });
+
+  els.instructorName.addEventListener("blur", () => {
+    profileSaveKey = profileKey(state.instructorName);
+    const k = profileSaveKey;
+    if (k) {
+      saveProfile(k, draftSnapshot());
+      setLastActiveInstructor(k);
+    }
+    refreshInstructorProfileSelect();
     persistSoon();
   });
   els.requestDay.addEventListener("input", () => {
@@ -386,6 +588,8 @@ function bindHeader() {
         }
       });
     });
+
+  applyStateToDom();
 }
 
 function syncQualificationCheckboxesFromState() {
@@ -507,7 +711,7 @@ function renderRows() {
           <input type="date" class="inp-lastlesson" data-i="${idx}" value="${escapeAttr(row.lastLessonDate || "")}" />
         </div>
         <div style="grid-column: 1 / -1">
-          <label>Remarks</label>
+          <label>Remarks (English: max 12 uppercase / 16 lowercase characters)</label>
           <input type="text" class="inp-remarks" data-i="${idx}" value="${escapeAttr(row.remarks)}" />
         </div>
       </div>
@@ -721,6 +925,55 @@ function closeListEditor() {
   listEditorKind = null;
 }
 
+function renderInstructorProfileList() {
+  if (!els.instructorProfileList) return;
+  els.instructorProfileList.innerHTML = "";
+  const names = listProfileNames();
+  if (!names.length) {
+    els.instructorProfileList.innerHTML = '<li class="hint">No saved profiles yet. Fill the form and type an instructor name — it saves automatically.</li>';
+    return;
+  }
+  names.forEach((name) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.className = "student-name-cell";
+    span.textContent = name;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "btn-danger";
+    del.textContent = "Delete";
+    del.addEventListener("click", () => {
+      if (!confirm(`Delete saved profile for "${name}"?`)) return;
+      deleteProfile(name);
+      if (profileKey(state.instructorName) === name) {
+        state = defaultEmptyState();
+        state.instructorName = "";
+        profileSaveKey = "";
+        applyStateToDom();
+      }
+      refreshInstructorProfileSelect();
+      renderInstructorProfileList();
+      persistSoon();
+    });
+    li.appendChild(span);
+    li.appendChild(del);
+    els.instructorProfileList.appendChild(li);
+  });
+}
+
+function openInstructorProfileModal() {
+  if (!els.instructorProfileModal) return;
+  renderInstructorProfileList();
+  els.instructorProfileModal.classList.add("open");
+  els.instructorProfileModal.setAttribute("aria-hidden", "false");
+}
+
+function closeInstructorProfileModal() {
+  if (!els.instructorProfileModal) return;
+  els.instructorProfileModal.classList.remove("open");
+  els.instructorProfileModal.setAttribute("aria-hidden", "true");
+}
+
 function addListEditorItem() {
   const v = els.listEditorNew.value.trim();
   if (!v || !listEditorKind) return;
@@ -810,50 +1063,6 @@ function exportPayload() {
   };
 }
 
-function copyEmailBody() {
-  const lines = [];
-  lines.push("[Acron ARF summary]");
-  lines.push(`Instructor: ${state.instructorName || "-"}`);
-  lines.push(`Day/Date: ${state.requestDay || "-"} / ${state.requestDate || "-"}`);
-  const ac = Object.keys(state.aircraft).filter((k) => state.aircraft[k]);
-  lines.push(`Aircraft qualification: ${ac.length ? ac.join(", ") : "-"}`);
-  const q = sanitizeQualifications(readQualificationsFromDom());
-  state.qualifications = q;
-  persistSoon();
-  const ins = Object.keys(q.instructor).filter((k) => q.instructor[k]);
-  if (ins.length) lines.push(`Instructor quals: ${ins.join(", ")}`);
-  const add = Object.entries(q.additionalCourse)
-    .filter(([, v]) => v)
-    .map(([k]) => k);
-  if (add.length) lines.push(`Additional course quals: ${add.join(", ")}`);
-  const uk = Object.keys(q.ukEasa).filter((k) => q.ukEasa[k]);
-  if (uk.length) lines.push(`UK/EASA: ${uk.join(", ")}`);
-  lines.push("");
-  state.rows.forEach((r, i) => {
-    if (!r.student && !r.courseId && !r.lessonCode && !r.cadetStatus) return;
-    const c = getCourseById(r.courseId);
-    lines.push(`--- Row ${i + 1} ---`);
-    lines.push(`Student: ${r.student || "-"}`);
-    lines.push(`Cadet Status: ${r.cadetStatus || "-"}`);
-    lines.push(`Course: ${c?.shortCode || "-"} (${c?.name || ""})`);
-    lines.push(`Lesson: ${r.lessonCode || "-"}`);
-    const typeLine = r.type || typeFromLessonCode(r.lessonCode) || "-";
-    lines.push(`Day/Night: ${r.dayNight || "-"} | Block Time: ${r.block || "-"} | Type: ${typeLine}`);
-    lines.push(`Equipment: ${r.equipment || "-"} | Last lesson: ${r.lastLessonDate || "-"}`);
-    if (r.remarks) lines.push(`Remarks: ${r.remarks}`);
-    lines.push("");
-  });
-  lines.push("Notes to Scheduling:");
-  lines.push(state.notesScheduling || "-");
-  lines.push("");
-  lines.push(`Group Manager: ${state.groupManager || "-"}`);
-  const text = lines.join("\n");
-  navigator.clipboard.writeText(text).then(
-    () => alert("Copied to clipboard."),
-    () => alert("Could not copy. Check browser permissions.")
-  );
-}
-
 async function loadCatalog() {
   const res = await fetch(assetUrl("courses.json"), { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load courses.json");
@@ -875,6 +1084,12 @@ function init() {
       e.preventDefault();
       addStudent();
     }
+  });
+
+  document.getElementById("openInstructorProfileModal")?.addEventListener("click", openInstructorProfileModal);
+  document.getElementById("closeInstructorProfileModal")?.addEventListener("click", closeInstructorProfileModal);
+  els.instructorProfileModal?.addEventListener("click", (e) => {
+    if (e.target === els.instructorProfileModal) closeInstructorProfileModal();
   });
 
   document.getElementById("openCadetListEditor").addEventListener("click", () => openListEditor("cadet"));
@@ -907,9 +1122,6 @@ function init() {
     renderRows();
     persistSoon();
   });
-
-  document.getElementById("copyEmailBody").addEventListener("click", copyEmailBody);
-  document.getElementById("printPage").addEventListener("click", () => window.print());
 
   document.getElementById("downloadArfPdf").addEventListener("click", async () => {
     try {

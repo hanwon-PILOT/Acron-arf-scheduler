@@ -35,6 +35,14 @@ AIRCRAFT_CHECK_V2 = {
     "PA-44": "Check Box7_1_1_1",
 }
 
+AIRCRAFT_CHECK_2025 = {
+    "PA-28": "Check Box3",
+    "SR-20": "Check Box4",
+    "C-172": "Check Box5",
+    "C-172SP": "Check Box6",
+    "PA-44": "Check Box7",
+}
+
 
 def detect_layout(m: dict[str, list]) -> str:
     """v1 legacy; v2025 bare names; v2 row Equipment combos; v3 compact (cadet Text1–10, TIME only equipment)."""
@@ -500,7 +508,12 @@ def sanitize_qualifications(raw) -> dict:
 
 
 def set_aircraft(m: dict[str, list[fitz.Widget]], aircraft: dict, layout: str) -> None:
-    mapping = AIRCRAFT_CHECK_V2 if layout_new_master(layout) else AIRCRAFT_CHECK
+    if layout == "v2025":
+        mapping = AIRCRAFT_CHECK_2025
+    elif layout_new_master(layout):
+        mapping = AIRCRAFT_CHECK_V2
+    else:
+        mapping = AIRCRAFT_CHECK
     for key, fname in mapping.items():
         for w in m.get(fname, []):
             if w.field_type == fitz.PDF_WIDGET_TYPE_CHECKBOX:
@@ -508,7 +521,20 @@ def set_aircraft(m: dict[str, list[fitz.Widget]], aircraft: dict, layout: str) -
 
 
 def set_checkboxes_qualifications(m: dict[str, list[fitz.Widget]], q: dict, layout: str) -> None:
-    if layout_new_master(layout):
+    if layout == "v2025":
+        ins_fields = [
+            ("CFI", "Q 1"),
+            ("CFII", "Q 2"),
+            ("MEI", "Q 3"),
+            ("SPIN", "Check Box1"),
+        ]
+        add_fields = [
+            ("cfiA141", "A 1"),
+            ("cfiI141", "A 2"),
+            ("mei141", "A 3"),
+        ]
+        uk_fields = [("FI", "A 0"), ("IRI", "A 4")]
+    elif layout_new_master(layout):
         ins_fields = [
             ("CFI", "Q 1_1_1_1"),
             ("CFII", "Q 2_1_1_1"),

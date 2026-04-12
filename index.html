@@ -17,15 +17,17 @@
         <h2>Instructor &amp; date</h2>
         <div class="grid-2">
           <div>
-            <label for="instructorName">Instructor name</label>
-            <input
-              type="text"
-              id="instructorName"
-              name="instructorName"
-              list="instructorNameList"
-              autocomplete="name"
-            />
-            <datalist id="instructorNameList"></datalist>
+            <label for="instructorProfileSelect">Instructor profile</label>
+            <select id="instructorProfileSelect" aria-label="Load saved instructor profile">
+              <option value="">— Select instructor —</option>
+            </select>
+            <p class="hint" style="margin: 0.35rem 0 0">
+              Pick a name to load everything saved for that instructor. You can edit the name below; saving keeps a separate profile per name.
+            </p>
+          </div>
+          <div>
+            <label for="instructorName">Instructor name (editable)</label>
+            <input type="text" id="instructorName" name="instructorName" autocomplete="name" />
           </div>
           <div>
             <label for="requestDate">Date</label>
@@ -62,7 +64,6 @@
         </div>
 
         <h3 class="subheading">4. UK / EASA</h3>
-        <p class="hint">The PDF has two checkboxes for FI and IRI. If you check CRI, the text <code>UK/EASA: CRI</code> is added at the top of <strong>Notes to Scheduling</strong> in the PDF.</p>
         <div class="aircraft-row" id="qualUk">
           <label class="cb"><input type="checkbox" data-q="ukEasa" data-k="FI" /> FI</label>
           <label class="cb"><input type="checkbox" data-q="ukEasa" data-k="IRI" /> IRI</label>
@@ -75,6 +76,7 @@
         <p class="hint">Student names and dropdown option lists are stored only in this browser.</p>
         <div class="row-toolbar">
           <button type="button" class="btn-primary" id="openNameManager">Manage names</button>
+          <button type="button" class="btn-secondary" id="openInstructorProfileModal">Manage instructor profiles</button>
           <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
           <button type="button" class="btn-secondary" id="openFlightTypeListEditor">Type list</button>
           <button type="button" class="btn-secondary" id="openEquipmentListEditor">Equipment list</button>
@@ -102,29 +104,10 @@
           <option value="ERIC DONAHUE">ERIC DONAHUE</option>
           <option value="IAN OBRIEN">IAN OBRIEN</option>
           <option value="ERICA LAMPHIER">ERICA LAMPHIER</option>
-          <option value="CYLE RAZEE">V CYLE RAZEE</option>
+          <option value="CYLE RAZEE">CYLE RAZEE</option>
           <option value="JOHN SLICK">JOHN SLICK</option>
           <option value="RICK NILSSON (UK)">RICK NILSSON (UK)</option>
         </select>
-      </section>
-
-      <footer class="actions no-print">
-        <button type="button" class="btn-primary" id="copyEmailBody">Copy summary</button>
-        <button type="button" class="btn-secondary" id="printPage">Print / Save as PDF</button>
-      </footer>
-
-      <p class="hint no-print" style="margin-top: 1rem">
-        Optional: fill from JSON on your Mac with <code>fill_arf_pdf.py</code>. Email:
-        SCHEDULING.SFB.CTS@ACRONAVIATION.COM
-      </p>
-
-      <section class="card no-print" style="margin-top: 1rem">
-        <h2>Hosting (not Mac-only)</h2>
-        <p class="hint" style="margin-bottom: 0">
-          You do <strong>not</strong> have to run this only on your Mac. Upload this folder (HTML, JS, CSS, <code>Master.pdf</code>, <code>courses.json</code>) to any static host:
-          <strong>GitHub Pages</strong>, <strong>Netlify</strong>, <strong>Cloudflare Pages</strong>, or your flight school website. Then open the site in Safari with an <code>https://</code> URL.
-          Google Drive “preview” is unreliable for JavaScript apps—use a real static host instead.
-        </p>
       </section>
 
       <section class="card no-print">
@@ -158,6 +141,17 @@
         </div>
         <ul class="name-list" id="nameList"></ul>
         <button type="button" class="btn-secondary" id="closeNameModal" style="width: 100%">Close</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="instructorProfileModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-labelledby="instructorProfileModalTitle">
+        <h2 id="instructorProfileModalTitle">Instructor profiles</h2>
+        <p class="hint" style="margin-top: 0">
+          Each profile stores instructor header, qualifications, schedule rows, notes, and group manager for that name. Delete a profile to remove it from the list (current form is not cleared until you reload or switch).
+        </p>
+        <ul class="name-list" id="instructorProfileList"></ul>
+        <button type="button" class="btn-secondary" id="closeInstructorProfileModal" style="width: 100%">Close</button>
       </div>
     </div>
 

@@ -185,8 +185,9 @@ const SPEC_2025 = {
   spin: "Check Box1",
   qualQ: ["Q 1", "Q 2", "Q 3"],
   qualAdd: ["A 1", "A 2", "A 3"],
-  qualUkFi: "A 4",
-  qualUkIri: "A 0",
+  /** ARF 2025 Master: FI is widget A 0, IRI is A 4 (was reversed; wrong mapping checked “IRI” when FI was on). */
+  qualUkFi: "A 0",
+  qualUkIri: "A 4",
   courseField(row) {
     return `Course ${row}`;
   },
@@ -739,7 +740,14 @@ function setCheckboxIf(form, name, on) {
   try {
     const cb = form.getCheckBox(name);
     if (on) cb.check();
-    else cb.uncheck();
+    else {
+      cb.uncheck();
+      try {
+        cb.updateAppearances();
+      } catch {
+        /* older pdf-lib */
+      }
+    }
   } catch {
     /* ignore */
   }
