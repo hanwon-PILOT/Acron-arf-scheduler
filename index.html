@@ -18,7 +18,14 @@
         <div class="grid-2">
           <div>
             <label for="instructorName">Instructor name</label>
-            <input type="text" id="instructorName" autocomplete="name" />
+            <input
+              type="text"
+              id="instructorName"
+              name="instructorName"
+              list="instructorNameList"
+              autocomplete="name"
+            />
+            <datalist id="instructorNameList"></datalist>
           </div>
           <div>
             <label for="requestDate">Date</label>

@@ -13,6 +13,8 @@ function assetUrl(filename) {
 const STORAGE_STUDENTS = "acron_arf_v1_students";
 const STORAGE_STUDENT_COURSE = "acron_arf_v1_student_course";
 const STORAGE_DRAFT = "acron_arf_v1_draft";
+const STORAGE_LAST_INSTRUCTOR = "acron_arf_v1_last_instructor";
+const STORAGE_INSTRUCTOR_HISTORY = "acron_arf_v1_instructor_history";
 const STORAGE_CADET = "acron_arf_v2_cadet_statuses";
 const STORAGE_FLIGHT_TYPES = "acron_arf_v2_flight_types";
 const STORAGE_EQUIPMENT = "acron_arf_v2_equipment_options";
@@ -184,11 +186,56 @@ function saveDraft(state) {
   localStorage.setItem(STORAGE_DRAFT, JSON.stringify(state));
 }
 
+function getLastInstructorName() {
+  try {
+    const s = localStorage.getItem(STORAGE_LAST_INSTRUCTOR);
+    return s ? String(s).trim() : "";
+  } catch {
+    return "";
+  }
+}
+
+function loadInstructorHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_INSTRUCTOR_HISTORY);
+    const p = raw ? JSON.parse(raw) : [];
+    return Array.isArray(p) ? p.filter((x) => typeof x === "string" && String(x).trim()) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Remember last non-empty instructor name for default + datalist suggestions. */
+function rememberInstructorName(name) {
+  const t = String(name || "").trim();
+  if (!t) return;
+  try {
+    localStorage.setItem(STORAGE_LAST_INSTRUCTOR, t);
+    const list = loadInstructorHistory().filter((x) => x.toLowerCase() !== t.toLowerCase());
+    list.unshift(t);
+    localStorage.setItem(STORAGE_INSTRUCTOR_HISTORY, JSON.stringify(list.slice(0, 12)));
+  } catch {
+    /* */
+  }
+}
+
+function refreshInstructorNameDatalist() {
+  const dl = document.getElementById("instructorNameList");
+  if (!dl) return;
+  dl.replaceChildren();
+  for (const name of loadInstructorHistory()) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    dl.appendChild(opt);
+  }
+}
+
 function buildInitialState() {
   const d = loadDraft();
+  const fallbackInstructor = getLastInstructorName();
   if (d && d.rows && Array.isArray(d.rows)) {
     return {
-      instructorName: d.instructorName || "",
+      instructorName: String(d.instructorName || "").trim() || fallbackInstructor,
       requestDay: d.requestDay || "",
       requestDate: d.requestDate || "",
       aircraft: d.aircraft || {},
@@ -211,7 +258,7 @@ function buildInitialState() {
     };
   }
   return {
-    instructorName: "",
+    instructorName: fallbackInstructor,
     requestDay: "",
     requestDate: "",
     aircraft: {},
@@ -245,6 +292,8 @@ const els = {
 function persistSoon() {
   clearTimeout(persistSoon._t);
   persistSoon._t = setTimeout(() => {
+    rememberInstructorName(state.instructorName);
+    refreshInstructorNameDatalist();
     saveDraft({
       instructorName: state.instructorName,
       requestDay: state.requestDay,
@@ -271,6 +320,7 @@ function ensureGroupManagerSelectValue() {
 }
 
 function bindHeader() {
+  refreshInstructorNameDatalist();
   els.instructorName.value = state.instructorName;
   els.requestDay.value = state.requestDay;
   els.requestDate.value = state.requestDate;
