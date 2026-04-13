@@ -11,9 +11,11 @@ const {
   typeFromLessonCode,
 } = await import(`./pdf-export.js?v=${encodeURIComponent(_cacheBust)}`);
 
-/** Resolve static assets next to this module (works on GitHub Pages project URLs). */
+/** Resolve static assets next to this module (same `v` as app entry for CDN/Safari cache). */
 function assetUrl(filename) {
-  return new URL(filename, import.meta.url).href;
+  const u = new URL(filename, import.meta.url);
+  u.searchParams.set("v", _cacheBust);
+  return u.href;
 }
 
 const STORAGE_STUDENTS = "acron_arf_v1_students";
