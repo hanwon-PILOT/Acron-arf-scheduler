@@ -1459,7 +1459,284 @@
         }
       ],
       "equipmentKey": "equipment",
-      "lessons": []
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "1-GB — Learning Process"
+        },
+        {
+          "stage": 1,
+          "code": "2-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "2-GB — Teaching Process"
+        },
+        {
+          "stage": 1,
+          "code": "3-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "3-GB — Human Behavior and Effective Communication"
+        },
+        {
+          "stage": 1,
+          "code": "4-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "4-GB — Takeoffs and Landings"
+        },
+        {
+          "stage": 1,
+          "code": "5-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "5-GB — Commercial and Ground Reference Maneuvers"
+        },
+        {
+          "stage": 1,
+          "code": "6-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "6-GB — Performance and Limitations"
+        },
+        {
+          "stage": 1,
+          "code": "7-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "7-GB — Stalls and Spin Awareness"
+        },
+        {
+          "stage": 1,
+          "code": "8-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "8-GB — Navigation Systems and Radar Services"
+        },
+        {
+          "stage": 1,
+          "code": "9-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "9-GB — Certificates and Documents"
+        },
+        {
+          "stage": 1,
+          "code": "10-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "10-GB — Operation of Systems/Flight Controls"
+        },
+        {
+          "stage": 1,
+          "code": "11-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "11-GB — Airworthiness"
+        },
+        {
+          "stage": 1,
+          "code": "12-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "12-GB — Weather Information"
+        },
+        {
+          "stage": 1,
+          "code": "13-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "13-GB — Night Operations/High Altitude Operations"
+        },
+        {
+          "stage": 1,
+          "code": "14-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "14-GB — Instructional Responsibilities and Professionalism"
+        },
+        {
+          "stage": 1,
+          "code": "15-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "15-GB — Techniques of Flight Instruction"
+        },
+        {
+          "stage": 1,
+          "code": "16-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "16-GB — Assessment and Critique"
+        },
+        {
+          "stage": 1,
+          "code": "17-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "17-GB — Risk Management"
+        },
+        {
+          "stage": 1,
+          "code": "18-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "18-GB — Flight Maneuver/Scanning and Collision Avoidance/Runway Incursion Avoidance"
+        },
+        {
+          "stage": 1,
+          "code": "19-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "19-GB — Principles of Flight"
+        },
+        {
+          "stage": 1,
+          "code": "20-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "20-GB — National Airspace System"
+        },
+        {
+          "stage": 1,
+          "code": "21-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "21-GB — Navigation and Flight Planning"
+        },
+        {
+          "stage": 1,
+          "code": "22-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "22-GB — Aeromedical Factors"
+        },
+        {
+          "stage": 1,
+          "code": "23-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "23-GB — Federal Aviation Regulations"
+        },
+        {
+          "stage": 1,
+          "code": "24-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "24-GB — Weight and Balance"
+        },
+        {
+          "stage": 1,
+          "code": "1-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-DLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "12-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "13-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "14-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "15-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "16-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "17-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "18-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
     },
     {
       "id": "cfii",
@@ -1520,7 +1797,140 @@
         }
       ],
       "equipmentKey": "equipment",
-      "lessons": []
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "1-GB — AIRCRAFT FLIGHT INSTRUMENTS AND NAVIGATION EQUIPMENT"
+        },
+        {
+          "stage": 1,
+          "code": "2-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "2-GB — AEROMEDICAL FACTORS"
+        },
+        {
+          "stage": 1,
+          "code": "3-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "3-GB — WEATHER INFORMATION"
+        },
+        {
+          "stage": 1,
+          "code": "4-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "4-GB — REGULATIONS AND PUBLICATIONS RELATED TO IFR OPERATIONS/LOGBOC ENTRIES"
+        },
+        {
+          "stage": 1,
+          "code": "5-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "5-GB — CROSS-COUNTRY FLIGHT PLANNING"
+        },
+        {
+          "stage": 1,
+          "code": "6-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "6-GB — INSTRUMENT FLIGHT DECK CHECK/EMERGENCY OPERATIONS"
+        },
+        {
+          "stage": 1,
+          "code": "7-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "7-GB — AIR TRAFFIC CONTROL CLEARANCES AND PROCEDURES"
+        },
+        {
+          "stage": 1,
+          "code": "8-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "8-GB — NAVIGATION AIDS"
+        },
+        {
+          "stage": 1,
+          "code": "9-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "9-GB — INSTRUMENT APPROACH PROCEDURES"
+        },
+        {
+          "stage": 1,
+          "code": "10-GB",
+          "equipment": "Ground",
+          "times": {},
+          "label": "10-GB — FLIGHT BY REFERENCE TO INSTRUMENTS"
+        },
+        {
+          "stage": 1,
+          "code": "1-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-DLN",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-DXC",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-STO-P1",
+          "equipment": "Ground",
+          "times": {},
+          "label": "8-STO — Part 1"
+        },
+        {
+          "stage": 1,
+          "code": "8-STO-P2",
+          "equipment": "Ground",
+          "times": {},
+          "label": "8-STO — Part 2"
+        },
+        {
+          "stage": 1,
+          "code": "9-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        }
+      ]
     }
   ]
 }

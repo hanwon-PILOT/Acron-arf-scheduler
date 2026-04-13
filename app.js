@@ -806,7 +806,8 @@ function lessonOptionsHtmlFixed(course, selectedCode) {
   const parts = ['<option value="">— Lesson —</option>'];
   for (const L of course.lessons) {
     const sel = L.code === selectedCode ? " selected" : "";
-    parts.push(`<option value="${escapeAttr(L.code)}"${sel}>${escapeHtml(L.code)}</option>`);
+    const optLabel = L.label || L.code;
+    parts.push(`<option value="${escapeAttr(L.code)}"${sel}>${escapeHtml(optLabel)}</option>`);
   }
   return parts.join("");
 }

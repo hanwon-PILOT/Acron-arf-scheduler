@@ -1238,6 +1238,9 @@ export function typeFromLessonCode(code) {
   if (/-SLN\b/i.test(raw)) return "Solo";
   if (/-SXC\b/i.test(raw)) return "SoloXC";
 
+  if (/-STO\b/i.test(raw)) return "Ground";
+  if (/-STF\b/i.test(raw)) return "D";
+
   return "";
 }
 
