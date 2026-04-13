@@ -8,14 +8,16 @@ Open the folder `/Users/hw/acron-arf-scheduler` (or your clone path) in Cursor. 
 
 ## Local preview
 
-Serve this directory over HTTP (Safari needs HTTP for `fetch`):
+Serve this directory over HTTP (Safari needs HTTP for `fetch`). Prefer **`serve.py`** so Safari’s normal window does not keep stale `app.js` / `styles.css` (Private Browsing often looks “updated” because it starts with an empty cache):
 
 ```bash
 cd /path/to/acron-arf-scheduler
-python3 -m http.server 8080
+python3 serve.py -p 8080
 ```
 
-Open `http://127.0.0.1:8080/` in Safari.
+Open `http://127.0.0.1:8080/` in Safari. (`python3 -m http.server` works but caches aggressively.)
+
+After you deploy to **GitHub Pages**, bump the `?v=` query on `styles.css` and `app.js` in `index.html` when you want every visitor to pull new assets without waiting on CDN cache.
 
 ## GitHub Pages
 

@@ -1,9 +1,15 @@
-import {
+/**
+ * Safari (non‑Private) caches ES modules aggressively. `index.html` loads this file as `app.js?v=N`;
+ * we reuse the same `v` for `pdf-export.js` so both refresh together when N is bumped.
+ */
+const _appEntry = new URL(import.meta.url);
+const _cacheBust = _appEntry.searchParams.get("v") || "1";
+const {
   fillArfTemplate,
   downloadPdfBytes,
   lessonTextForPdfField,
   typeFromLessonCode,
-} from "./pdf-export.js";
+} = await import(`./pdf-export.js?v=${encodeURIComponent(_cacheBust)}`);
 
 /** Resolve static assets next to this module (works on GitHub Pages project URLs). */
 function assetUrl(filename) {
@@ -1270,5 +1276,5 @@ loadCatalog()
     renderRows();
   })
   .catch((err) => {
-    document.body.innerHTML = `<main class="card" style="margin:2rem"><h2>Load error</h2><p>${escapeHtml(err.message)}</p><p class="hint">Serve this folder over HTTP (required for <code>courses.json</code> and <code>Master.pdf</code>):<br><code>cd acron-arf-scheduler && python3 -m http.server 8765</code><br>Then open <code>http://localhost:8765</code> — or deploy the folder to Netlify / GitHub Pages / Cloudflare Pages.</p></main>`;
+    document.body.innerHTML = `<main class="card" style="margin:2rem"><h2>Load error</h2><p>${escapeHtml(err.message)}</p><p class="hint">Serve this folder over HTTP (required for <code>courses.json</code> and <code>Master.pdf</code>):<br><code>cd acron-arf-scheduler && python3 serve.py -p 8765</code> (avoids Safari caching stale JS)<br>Then open <code>http://127.0.0.1:8765</code> — or deploy the folder to Netlify / GitHub Pages / Cloudflare Pages.</p></main>`;
   });
