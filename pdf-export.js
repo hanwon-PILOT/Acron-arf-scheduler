@@ -77,6 +77,7 @@ const COURSE_OPTIONLIST_BACKSTOP = [
  *   qualAdd: [string, string, string],
  *   qualUkFi: string,
  *   qualUkIri: string,
+ *   qualUkCri?: string,
  *   courseField: (row: number) => string,
  *   studentField: (row: number) => string,
  *   idField: (row: number) => string,
@@ -90,6 +91,8 @@ const COURSE_OPTIONLIST_BACKSTOP = [
  *   cadetAsText?: boolean, // true → write cadetDropdown() name as PDFTextField
  *   dayNightDropdown: (row: number) => string,
  *   lastLessonText: (row: number) => string,
+ *   dayNightTextField?: (row: number) => string, // plain PDF text (clean masters: TIME column)
+ *   cadetLastLessonTextField?: (row: number) => string, // last-lesson date text only (clean: Text6+n; cadet → ID/Status)
  * }} PdfFieldSpec */
 
 /** @type {PdfFieldSpec} */
@@ -224,6 +227,221 @@ const SPEC_2025 = {
   },
   lastLessonText(row) {
     return `Text${6 + row}`;
+  },
+};
+
+/**
+ * Clean Master (older export): fields use *_1; header NAME_1. Superseded by SPEC_CLEAN when Course 1_1_1 exists.
+ */
+/** @type {PdfFieldSpec} */
+const SPEC_CLEAN_LEGACY = {
+  id: "cleanLegacy",
+  headerName: "NAME_1",
+  headerDate: "DATE_1",
+  headerDay: "Day_1",
+  headerNotes: "NOTES TO SCHEDULING_1",
+  headerGroup: "GROUP MANAGER_1",
+  aircraft: {
+    "PA-28": "Check Box2_1",
+    "SR-20": "Check Box3_1",
+    "C-172": "Check Box4_1",
+    "C-172SP": "Check Box5_1",
+    "PA-44": "Check Box5_2",
+  },
+  spin: "Q 1_4",
+  qualQ: ["Q 1_1", "Q 1_2", "Q 1_3"],
+  qualAdd: ["A 1_1", "A 2_1", "A 3_1"],
+  qualUkFi: "A 4_1",
+  qualUkIri: "A 5_1",
+  courseField(row) {
+    if (row === 1) return "Course 1_1";
+    if (row === 2) return "Course 2_2";
+    if (row === 10) return "Course 10_1";
+    return `Course ${row}_1`;
+  },
+  studentField(row) {
+    return `STUDENT ${row}_1`;
+  },
+  idField(row) {
+    return `ID ${row}_1`;
+  },
+  lessonField(row) {
+    return `LESSON ${row}_1`;
+  },
+  remarksField(row) {
+    return `REMARKSRow${row}_1`;
+  },
+  typeField(row) {
+    return `Type ${row}_1`;
+  },
+  blockField(row) {
+    return `BLOCK ${row}_1`;
+  },
+  timeField(row) {
+    return `TIME ${row}_1`;
+  },
+  equipmentFieldNames(row) {
+    return [`Equipment ${row}_1`];
+  },
+  cadetDropdown() {
+    return "";
+  },
+  dayNightDropdown() {
+    return "";
+  },
+  lastLessonText(row) {
+    return `Text${6 + row}_1`;
+  },
+  /** No Dropdown widgets — Day/Night/Both as text in TIME; last lesson date in Text(6+row); cadet → ID column. */
+  dayNightTextField(row) {
+    return `TIME ${row}_1`;
+  },
+  cadetLastLessonTextField(row) {
+    return `Text${6 + row}_1`;
+  },
+};
+
+/**
+ * Clean Master (table rows re-exported): same logic as legacy clean but AcroForm names use *_1_1 (e.g. NAME_1_1, Course 1_1_1).
+ * Distinguished from ARF legacy (NAME_1_1 + Course 1) by presence of Course 1_1_1. No cadet / day-night dropdowns (cadet → ID n, date → Text6+n).
+ */
+/** @type {PdfFieldSpec} */
+const SPEC_CLEAN = {
+  id: "clean",
+  headerName: "NAME_1_1",
+  headerDate: "DATE_1_1",
+  headerDay: "Day_1_1",
+  headerNotes: "NOTES TO SCHEDULING_1_1",
+  headerGroup: "GROUP MANAGER_1_1",
+  aircraft: {
+    "PA-28": "Check Box2_1_1",
+    "SR-20": "Check Box3_1_1",
+    "C-172": "Check Box4_1_1",
+    "C-172SP": "Check Box5_1_1",
+    "PA-44": "Check Box5_2_1",
+  },
+  spin: "Q 1_4_1",
+  qualQ: ["Q 1_1_1", "Q 1_2_1", "Q 1_3_1"],
+  qualAdd: ["A 1_1_1", "A 2_1_1", "A 3_1_1"],
+  qualUkFi: "A 4_1_1",
+  qualUkIri: "A 5_1_1",
+  courseField(row) {
+    if (row === 1) return "Course 1_1_1";
+    if (row === 2) return "Course 2_2_1";
+    if (row === 10) return "Course 10_1_1";
+    return `Course ${row}_1_1`;
+  },
+  studentField(row) {
+    return `STUDENT ${row}_1_1`;
+  },
+  idField(row) {
+    return `ID ${row}_1_1`;
+  },
+  lessonField(row) {
+    return `LESSON ${row}_1_1`;
+  },
+  remarksField(row) {
+    return `REMARKSRow${row}_1_1`;
+  },
+  typeField(row) {
+    return `Type ${row}_1_1`;
+  },
+  blockField(row) {
+    return `BLOCK ${row}_1_1`;
+  },
+  timeField(row) {
+    return `TIME ${row}_1_1`;
+  },
+  equipmentFieldNames(row) {
+    return [`Equipment ${row}_1_1`];
+  },
+  cadetDropdown() {
+    return "";
+  },
+  dayNightDropdown() {
+    return "";
+  },
+  lastLessonText(row) {
+    return `Text${6 + row}_1_1`;
+  },
+  dayNightTextField(row) {
+    return `TIME ${row}_1_1`;
+  },
+  cadetLastLessonTextField(row) {
+    return `Text${6 + row}_1_1`;
+  },
+};
+
+/**
+ * “Clean Master For Optimizing”: clear IQ / A / B+C / D checkbox names; header NAME+Day+DATE unsuffixed;
+ * row fields match other clean masters (STUDENT n_1_1, Course 1_1_1 & Course 2_2_1, etc.).
+ */
+/** @type {PdfFieldSpec} */
+const SPEC_CLEAN_OPTIM = {
+  id: "cleanOptim",
+  headerName: "NAME",
+  headerDate: "DATE",
+  headerDay: "Day",
+  headerNotes: "NOTES TO SCHEDULING_1_1",
+  headerGroup: "GROUP MANAGER_1_1",
+  /** Row 1: PA-28…PA-44 left→right (x order in PDF). */
+  aircraft: {
+    "PA-28": "A 1",
+    "SR-20": "A 2",
+    "C-172": "A 3",
+    "C-172SP": "A 4",
+    "PA-44": "A 5",
+  },
+  spin: "",
+  qualQ: ["IQ 1", "IQ 2", "IQ 3"],
+  qualAdd: ["B 1", "B 2", "C 3"],
+  qualUkFi: "D 1",
+  qualUkIri: "D 2",
+  qualUkCri: "D 3",
+  courseField(row) {
+    if (row === 1) return "Course 1_1_1";
+    if (row === 2) return "Course 2_2_1";
+    if (row === 10) return "Course 10_1_1";
+    return `Course ${row}_1_1`;
+  },
+  studentField(row) {
+    return `STUDENT ${row}_1_1`;
+  },
+  idField(row) {
+    return `ID ${row}_1_1`;
+  },
+  lessonField(row) {
+    return `LESSON ${row}_1_1`;
+  },
+  remarksField(row) {
+    return `REMARKSRow${row}_1_1`;
+  },
+  typeField(row) {
+    return `Type ${row}_1_1`;
+  },
+  blockField(row) {
+    return `BLOCK ${row}_1_1`;
+  },
+  timeField(row) {
+    return `TIME ${row}_1_1`;
+  },
+  equipmentFieldNames(row) {
+    return [`Equipment ${row}_1_1`];
+  },
+  cadetDropdown() {
+    return "";
+  },
+  dayNightDropdown() {
+    return "";
+  },
+  lastLessonText(row) {
+    return `Text${6 + row}_1_1`;
+  },
+  dayNightTextField(row) {
+    return `TIME ${row}_1_1`;
+  },
+  cadetLastLessonTextField(row) {
+    return `Text${6 + row}_1_1`;
   },
 };
 
@@ -387,6 +605,21 @@ function hasRowEquipmentCombo(form) {
   }
 }
 
+/** Current clean master uses Course 1_1_1; ARF legacy uses Course 1 / Course n_1_1. */
+function hasCleanMasterCourseField(form) {
+  try {
+    form.getDropdown("Course 1_1_1");
+    return true;
+  } catch {
+    try {
+      form.getOptionList("Course 1_1_1");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
 /**
  * @param {import('pdf-lib').PDFForm} form
  * @returns {PdfFieldSpec}
@@ -396,11 +629,29 @@ function detectFieldSpec(form) {
     form.getTextField("NAME_1_1_1");
     return hasRowEquipmentCombo(form) ? SPEC_V2 : SPEC_V3;
   } catch {
+    if (hasCleanMasterCourseField(form)) {
+      try {
+        form.getTextField("NAME_1_1");
+        return SPEC_CLEAN;
+      } catch {
+        try {
+          form.getCheckBox("IQ 1");
+          return SPEC_CLEAN_OPTIM;
+        } catch {
+          return SPEC_CLEAN;
+        }
+      }
+    }
     try {
-      form.getTextField("NAME");
-      return SPEC_2025;
+      form.getTextField("NAME_1");
+      return SPEC_CLEAN_LEGACY;
     } catch {
-      return SPEC_LEGACY;
+      try {
+        form.getTextField("NAME");
+        return SPEC_2025;
+      } catch {
+        return SPEC_LEGACY;
+      }
     }
   }
 }
@@ -682,7 +933,8 @@ function equipmentTextFieldCandidates(spec, row) {
     if (row === 1) return [base, `${base}#1`];
     return [base];
   }
-  if (spec.id === "2025" || spec.id === "v3") return [];
+  if (spec.id === "2025" || spec.id === "clean" || spec.id === "cleanOptim" || spec.id === "cleanLegacy" || spec.id === "v3")
+    return [];
   if (row === 1) return ["Equipment 1_1", "Equipment 1_1#1"];
   if (row >= 2 && row <= 9) return [`Equipment ${row}_1#1`];
   return [];
@@ -724,14 +976,14 @@ function fillEquipmentColumn(form, spec, row, block, equip) {
 }
 
 function setAircraftFromData(form, aircraft, spec) {
+  const useFallbacks = spec.id === "clean" || spec.id === "cleanLegacy";
   for (const [key, pdfName] of Object.entries(spec.aircraft)) {
-    try {
-      const cb = form.getCheckBox(pdfName);
-      if (aircraft && aircraft[key]) cb.check();
-      else cb.uncheck();
-    } catch {
-      /* ignore */
-    }
+    const extra = useFallbacks ? AIRCRAFT_CHECK_FALLBACKS[key] : [];
+    const candidates = [pdfName, ...(extra || [])].filter(Boolean);
+    const dedup = [...new Set(candidates)];
+    const on = !!(aircraft && aircraft[key]);
+    if (useFallbacks) setCheckboxFirstExisting(form, dedup, on);
+    else setCheckboxIf(form, pdfName, on);
   }
 }
 
@@ -740,18 +992,50 @@ function setCheckboxIf(form, name, on) {
   try {
     const cb = form.getCheckBox(name);
     if (on) cb.check();
-    else {
-      cb.uncheck();
-      try {
-        cb.updateAppearances();
-      } catch {
-        /* older pdf-lib */
-      }
-    }
+    else cb.uncheck();
   } catch {
     /* ignore */
   }
 }
+
+function formHasCheckbox(form, name) {
+  if (!name) return false;
+  try {
+    form.getCheckBox(name);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Some Master.pdf re-exports rename widgets (e.g. MEI → Q 3_1_1, aircraft → legacy-style Check Box3…7).
+ * Pick the first name that exists, set it; uncheck other candidates so stale widgets don’t stay on.
+ */
+function setCheckboxFirstExisting(form, candidates, on) {
+  if (!candidates?.length) return;
+  let chosen = null;
+  for (const n of candidates) {
+    if (formHasCheckbox(form, n)) {
+      chosen = n;
+      break;
+    }
+  }
+  if (!chosen) return;
+  for (const n of candidates) {
+    if (!formHasCheckbox(form, n)) continue;
+    setCheckboxIf(form, n, !!(on && n === chosen));
+  }
+}
+
+/** Extra AcroForm names to try for clean / cleanLegacy aircraft row (primary names in spec.aircraft). */
+const AIRCRAFT_CHECK_FALLBACKS = {
+  "PA-28": ["Check Box3_1_1", "Check Box3_1_1_1"],
+  "SR-20": ["Check Box4_1_1", "Check Box4_1_1_1"],
+  "C-172": ["Check Box5_1_1", "Check Box5_1_1_1"],
+  "C-172SP": ["Check Box6_1_1", "Check Box6_1_1_1"],
+  "PA-44": ["Check Box7_1_1", "Check Box7_1_1_1", "Check Box5_2_1", "Check Box5_2_1_1"],
+};
 
 /** Only known qualification keys; strips stray JSON so PDF matches intended checkboxes. */
 function normalizeQualificationsInPdf(q) {
@@ -783,22 +1067,102 @@ function buildNotesWithQualifiers(data) {
  * @param {object} data
  * @param {PdfFieldSpec} spec
  */
+/** First AcroForm checkbox name in list that exists (pdf-lib). */
+function firstExistingCheckboxName(form, names) {
+  for (const n of names) {
+    if (formHasCheckbox(form, n)) return n;
+  }
+  return null;
+}
+
+/** Clean masters: wipe every “A n_*” widget we might use for Additional + UK, then set only from data (fixes wrong FI / CFI-A when names overlap between exports). */
+function uncheckCleanAdditionalUkPool(form, legacy) {
+  const pool = legacy
+    ? ["A 0_1", "A 1_1", "A 1_1_1", "A 2_1", "A 2_1_1", "A 3_1", "A 3_1_1", "A 4_1", "A 5_1", "A 6_1"]
+    : ["A 0_1_1", "A 1_1_1", "A 1_1", "A 2_1_1", "A 2_1", "A 3_1_1", "A 3_1", "A 4_1_1", "A 5_1_1", "A 6_1_1"];
+  for (const n of pool) setCheckboxIf(form, n, false);
+}
+
+function applyCleanAdditionalAndUk(form, q, legacy) {
+  const add = q.additionalCourse;
+  const uk = q.ukEasa;
+  uncheckCleanAdditionalUkPool(form, legacy);
+
+  const cfiA = firstExistingCheckboxName(form, legacy ? ["A 1_1", "A 1_1_1"] : ["A 1_1_1", "A 1_1"]);
+  const cfiI = firstExistingCheckboxName(form, legacy ? ["A 2_1", "A 2_1_1"] : ["A 2_1_1", "A 2_1"]);
+  const meiA = firstExistingCheckboxName(form, legacy ? ["A 3_1", "A 3_1_1"] : ["A 3_1_1", "A 3_1"]);
+  if (cfiA) setCheckboxIf(form, cfiA, add.cfiA141);
+  if (cfiI) setCheckboxIf(form, cfiI, add.cfiI141);
+  if (meiA) setCheckboxIf(form, meiA, add.mei141);
+
+  const a4 = legacy ? "A 4_1" : "A 4_1_1";
+  const a5 = legacy ? "A 5_1" : "A 5_1_1";
+  const a0 = legacy ? "A 0_1" : "A 0_1_1";
+  const has45 = formHasCheckbox(form, a4) && formHasCheckbox(form, a5);
+  const has04 = formHasCheckbox(form, a0) && formHasCheckbox(form, a4);
+
+  if (has45) {
+    /* Typical clean row: FI = A4, IRI = A5; leave A0 off if it exists as a spare widget */
+    setCheckboxIf(form, a4, uk.FI);
+    setCheckboxIf(form, a5, uk.IRI);
+    if (formHasCheckbox(form, a0)) setCheckboxIf(form, a0, false);
+  } else if (has04) {
+    /* ARF 2025–style pairing on some exports: FI → A 0, IRI → A 4 */
+    setCheckboxIf(form, a0, uk.FI);
+    setCheckboxIf(form, a4, uk.IRI);
+  } else {
+    setCheckboxIf(form, a4, uk.FI);
+    setCheckboxIf(form, a5, uk.IRI);
+  }
+}
+
 function applyQualifications(form, data, spec) {
   const q = normalizeQualificationsInPdf(data.qualifications);
   const ins = q.instructor;
+
+  if (spec.id === "cleanOptim") {
+    setCheckboxIf(form, "IQ 1", ins.CFI);
+    setCheckboxIf(form, "IQ 2", ins.CFII);
+    setCheckboxIf(form, "IQ 3", ins.MEI);
+    setCheckboxIf(form, "IQ 4", ins.SPIN);
+    const add = q.additionalCourse;
+    setCheckboxIf(form, "B 1", add.cfiA141);
+    setCheckboxIf(form, "B 2", add.cfiI141);
+    setCheckboxIf(form, "C 3", add.mei141);
+    const uk = q.ukEasa;
+    setCheckboxIf(form, "D 1", uk.FI);
+    setCheckboxIf(form, "D 2", uk.IRI);
+    setCheckboxIf(form, "D 3", uk.CRI);
+    return;
+  }
+
   setCheckboxIf(form, spec.qualQ[0], ins.CFI);
   setCheckboxIf(form, spec.qualQ[1], ins.CFII);
-  setCheckboxIf(form, spec.qualQ[2], ins.MEI);
-  setCheckboxIf(form, spec.spin, ins.SPIN);
 
-  const add = q.additionalCourse;
-  setCheckboxIf(form, spec.qualAdd[0], add.cfiA141);
-  setCheckboxIf(form, spec.qualAdd[1], add.cfiI141);
-  setCheckboxIf(form, spec.qualAdd[2], add.mei141);
-
-  const uk = q.ukEasa;
-  setCheckboxIf(form, spec.qualUkFi, uk.FI);
-  setCheckboxIf(form, spec.qualUkIri, uk.IRI);
+  if (spec.id === "clean") {
+    setCheckboxFirstExisting(form, ["Q 1_3_1", "Q 3_1_1", "Q 3_1_1_1"], ins.MEI);
+    setCheckboxFirstExisting(
+      form,
+      ["Q 1_4_1", "Q 4_1_1", "Q 4_1_1_1", "Check Box1_1_1", "Check Box1_1_1_1"],
+      ins.SPIN
+    );
+    applyCleanAdditionalAndUk(form, q, false);
+  } else if (spec.id === "cleanLegacy") {
+    setCheckboxFirstExisting(form, ["Q 1_3", "Q 3_1", "Q 3_1_1"], ins.MEI);
+    setCheckboxFirstExisting(form, ["Q 1_4", "Q 4_1", "Q 4_1_1", "Check Box1_1"], ins.SPIN);
+    applyCleanAdditionalAndUk(form, q, true);
+  } else {
+    setCheckboxIf(form, spec.qualQ[2], ins.MEI);
+    setCheckboxIf(form, spec.spin, ins.SPIN);
+    const add = q.additionalCourse;
+    setCheckboxIf(form, spec.qualAdd[0], add.cfiA141);
+    setCheckboxIf(form, spec.qualAdd[1], add.cfiI141);
+    setCheckboxIf(form, spec.qualAdd[2], add.mei141);
+    const uk = q.ukEasa;
+    setCheckboxIf(form, spec.qualUkFi, uk.FI);
+    setCheckboxIf(form, spec.qualUkIri, uk.IRI);
+    if (spec.qualUkCri) setCheckboxIf(form, spec.qualUkCri, uk.CRI);
+  }
 }
 
 export function formatDateUs(value) {
@@ -912,7 +1276,12 @@ export async function fillArfTemplate(templateBytes, data) {
     const courseCode = normalizeCourseCodeForPdf(row.courseShortCode || row.courseCode || "");
 
     setTextIf(form, spec.studentField(idx), row.student);
-    setTextIf(form, spec.idField(idx), row.studentId);
+    /** Clean masters: PDF “Status” column is the ID n field; cadet status belongs there (not in Date of Last Lesson). */
+    const statusOnIdField = spec.id === "clean" || spec.id === "cleanOptim" || spec.id === "cleanLegacy";
+    const idCell = statusOnIdField
+      ? String(row.cadetStatus || row.studentId || "").trim()
+      : String(row.studentId || "").trim();
+    if (idCell) setTextIf(form, spec.idField(idx), idCell);
 
     const cname = spec.courseField(idx);
     if (courseCode) {
@@ -938,27 +1307,40 @@ export async function fillArfTemplate(templateBytes, data) {
     setTextIf(form, spec.remarksField(idx), row.remarks);
 
     const cadet = (row.cadetStatus || "").trim();
-    if (cadet) {
-      const cname = spec.cadetDropdown(idx);
-      if (cname) {
-        if (spec.cadetAsText) setTextIf(form, cname, cadet);
-        else selectFormChoiceIf(form, cname, cadet, CADET_OPTIONLIST_BACKSTOP);
-      }
-    }
-
     const dn = (row.dayNight || "").trim();
-    if (dn) {
+    const llMd = row.lastLessonDate ? formatMonthDay(row.lastLessonDate) : "";
+
+    const dnText = typeof spec.dayNightTextField === "function" ? spec.dayNightTextField(idx) : "";
+    const cadetLlText = typeof spec.cadetLastLessonTextField === "function" ? spec.cadetLastLessonTextField(idx) : "";
+
+    if (dnText) {
+      if (dn) setTextFieldRaw(form, dnText, dn);
+    } else if (dn) {
       const dnName = spec.dayNightDropdown(idx);
       if (dnName) selectFormChoiceIf(form, dnName, dn, DAY_NIGHT_OPTIONLIST_BACKSTOP);
     }
 
-    if (row.lastLessonDate) {
-      const tname = spec.lastLessonText(idx);
-      setTextIf(form, tname, formatMonthDay(row.lastLessonDate));
+    if (cadetLlText) {
+      /* Same widget as lastLessonText on clean masters — date only (cadet is in ID / Status). */
+      setTextFieldRaw(form, cadetLlText, llMd);
+    } else {
+      if (cadet) {
+        const cname = spec.cadetDropdown(idx);
+        if (cname) {
+          if (spec.cadetAsText) setTextIf(form, cname, cadet);
+          else selectFormChoiceIf(form, cname, cadet, CADET_OPTIONLIST_BACKSTOP);
+        }
+      }
+      if (llMd) setTextIf(form, spec.lastLessonText(idx), llMd);
     }
 
   }
 
+  /**
+   * Text/dropdown/list only — Helvetica appearances for typed values.
+   * Do NOT call updateAppearances on PDFCheckBox: pdf-lib redraw can drop the template’s visible
+   * square outline (/AP) so boxes “disappear” while /Yes still toggles in some viewers.
+   */
   const helv = await pdfDoc.embedFont(StandardFonts.Helvetica);
   for (const field of form.getFields()) {
     if (field instanceof PDFDropdown || field instanceof PDFOptionList || field instanceof PDFTextField) {
@@ -970,7 +1352,8 @@ export async function fillArfTemplate(templateBytes, data) {
     }
   }
 
-  return pdfDoc.save({ updateFieldAppearances: true });
+  /* false = keep Master.pdf’s original widget graphics (checkbox borders, etc.); values still saved in /V. */
+  return pdfDoc.save({ updateFieldAppearances: false });
 }
 
 export function downloadPdfBytes(bytes, filename) {

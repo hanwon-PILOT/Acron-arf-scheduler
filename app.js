@@ -17,6 +17,7 @@ const STORAGE_LAST_INSTRUCTOR = "acron_arf_v1_last_instructor";
 const STORAGE_INSTRUCTOR_HISTORY = "acron_arf_v1_instructor_history";
 const STORAGE_INSTRUCTOR_PROFILES = "acron_arf_v2_instructor_profiles";
 const STORAGE_LAST_ACTIVE_INSTRUCTOR = "acron_arf_v2_last_active_instructor";
+const STORAGE_INSTRUCTOR_ROSTER = "acron_arf_v2_instructor_roster";
 
 /** Prevents instructor <select> change handler while syncing from code. */
 let instructorSelectSuppress = false;
@@ -395,6 +396,46 @@ let state = buildInitialState();
 let profileSaveKey = profileKey(state.instructorName);
 let students = loadStudents();
 
+function loadInstructorRoster() {
+  try {
+    const raw = localStorage.getItem(STORAGE_INSTRUCTOR_ROSTER);
+    if (!raw) return [];
+    const p = JSON.parse(raw);
+    return Array.isArray(p) ? p.filter((x) => typeof x === "string" && String(x).trim()) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveInstructorRoster(list) {
+  const u = [...new Set(list.map((x) => String(x || "").trim()).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "en")
+  );
+  localStorage.setItem(STORAGE_INSTRUCTOR_ROSTER, JSON.stringify(u));
+  return u;
+}
+
+/** Dropdown = roster ∪ saved profile names */
+function instructorNamesForDropdown() {
+  const s = new Set(loadInstructorRoster());
+  for (const n of listProfileNames()) s.add(n);
+  return [...s].sort((a, b) => a.localeCompare(b, "en"));
+}
+
+function ensureInstructorRosterSeededFromLegacy() {
+  if (loadInstructorRoster().length) return;
+  const seed = [...new Set([...listProfileNames(), ...loadInstructorHistory()])].filter(Boolean);
+  if (seed.length) saveInstructorRoster(seed);
+}
+
+function rememberInstructorRosterName(name) {
+  const t = profileKey(name);
+  if (!t) return;
+  const cur = loadInstructorRoster();
+  if (cur.some((x) => x.toLowerCase() === t.toLowerCase())) return;
+  saveInstructorRoster([...cur, t]);
+}
+
 const els = {
   instructorProfileSelect: document.getElementById("instructorProfileSelect"),
   instructorName: document.getElementById("instructorName"),
@@ -406,6 +447,9 @@ const els = {
   nameModal: document.getElementById("nameModal"),
   nameList: document.getElementById("nameList"),
   newStudentName: document.getElementById("newStudentName"),
+  instructorNameModal: document.getElementById("instructorNameModal"),
+  instructorRosterList: document.getElementById("instructorRosterList"),
+  newInstructorRosterName: document.getElementById("newInstructorRosterName"),
   instructorProfileModal: document.getElementById("instructorProfileModal"),
   instructorProfileList: document.getElementById("instructorProfileList"),
   listEditorModal: document.getElementById("listEditorModal"),
@@ -418,7 +462,7 @@ const els = {
 function refreshInstructorProfileSelect() {
   const sel = els.instructorProfileSelect;
   if (!sel) return;
-  const names = listProfileNames();
+  const names = instructorNamesForDropdown();
   const cur = profileKey(state.instructorName);
   instructorSelectSuppress = true;
   sel.replaceChildren();
@@ -443,6 +487,7 @@ function persistSoon() {
     const snap = draftSnapshot();
     const cur = profileKey(snap.instructorName);
     rememberInstructorName(snap.instructorName);
+    rememberInstructorRosterName(snap.instructorName);
     refreshInstructorProfileSelect();
     saveDraft(snap);
     if (profileSaveKey && cur === profileSaveKey) {
@@ -523,7 +568,7 @@ function bindHeader() {
     state.instructorName = els.instructorName.value;
     if (!instructorSelectSuppress) {
       const v = profileKey(state.instructorName);
-      const names = listProfileNames();
+      const names = instructorNamesForDropdown();
       instructorSelectSuppress = true;
       if (v && names.includes(v)) els.instructorProfileSelect.value = v;
       else els.instructorProfileSelect.value = "";
@@ -961,6 +1006,57 @@ function renderInstructorProfileList() {
   });
 }
 
+function renderInstructorRosterList() {
+  if (!els.instructorRosterList) return;
+  els.instructorRosterList.innerHTML = "";
+  const names = loadInstructorRoster();
+  if (!names.length) {
+    els.instructorRosterList.innerHTML = '<li class="hint">No names yet.</li>';
+    return;
+  }
+  names.forEach((name) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.className = "student-name-cell";
+    span.textContent = name;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "btn-danger";
+    del.textContent = "Remove";
+    del.addEventListener("click", () => {
+      saveInstructorRoster(loadInstructorRoster().filter((x) => x !== name));
+      renderInstructorRosterList();
+      refreshInstructorProfileSelect();
+    });
+    li.appendChild(span);
+    li.appendChild(del);
+    els.instructorRosterList.appendChild(li);
+  });
+}
+
+function openInstructorNameModal() {
+  if (!els.instructorNameModal) return;
+  renderInstructorRosterList();
+  els.instructorNameModal.classList.add("open");
+  els.instructorNameModal.setAttribute("aria-hidden", "false");
+}
+
+function closeInstructorNameModal() {
+  if (!els.instructorNameModal) return;
+  els.instructorNameModal.classList.remove("open");
+  els.instructorNameModal.setAttribute("aria-hidden", "true");
+}
+
+function addInstructorRosterEntry() {
+  const n = els.newInstructorRosterName?.value?.trim();
+  if (!n) return;
+  const cur = loadInstructorRoster();
+  if (!cur.some((x) => x.toLowerCase() === n.toLowerCase())) saveInstructorRoster([...cur, n]);
+  els.newInstructorRosterName.value = "";
+  renderInstructorRosterList();
+  refreshInstructorProfileSelect();
+}
+
 function openInstructorProfileModal() {
   if (!els.instructorProfileModal) return;
   renderInstructorProfileList();
@@ -1038,14 +1134,24 @@ async function resolveArfTemplateBytes() {
   return null;
 }
 
+function readAircraftFromDom() {
+  const out = {};
+  document.querySelectorAll("#aircraftChecks input[type=checkbox]").forEach((cb) => {
+    const k = cb.getAttribute("data-ac");
+    if (k) out[k] = cb.checked;
+  });
+  return out;
+}
+
 function exportPayload() {
   const qualifications = sanitizeQualifications(readQualificationsFromDom());
+  const aircraft = readAircraftFromDom();
   return {
     exportedAt: new Date().toISOString(),
     instructorName: state.instructorName,
     requestDay: state.requestDay,
     requestDate: state.requestDate,
-    aircraft: state.aircraft,
+    aircraft,
     qualifications,
     notesScheduling: state.notesScheduling,
     groupManager: state.groupManager,
@@ -1071,6 +1177,7 @@ async function loadCatalog() {
 
 function init() {
   refreshOptionLists();
+  ensureInstructorRosterSeededFromLegacy();
 
   bindHeader();
   document.getElementById("openNameManager").addEventListener("click", openNameModal);
@@ -1083,6 +1190,19 @@ function init() {
     if (e.key === "Enter") {
       e.preventDefault();
       addStudent();
+    }
+  });
+
+  document.getElementById("openInstructorNameModal")?.addEventListener("click", openInstructorNameModal);
+  document.getElementById("closeInstructorNameModal")?.addEventListener("click", closeInstructorNameModal);
+  els.instructorNameModal?.addEventListener("click", (e) => {
+    if (e.target === els.instructorNameModal) closeInstructorNameModal();
+  });
+  document.getElementById("addInstructorRosterBtn")?.addEventListener("click", addInstructorRosterEntry);
+  els.newInstructorRosterName?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addInstructorRosterEntry();
     }
   });
 
@@ -1127,9 +1247,7 @@ function init() {
     try {
       const bytes = await resolveArfTemplateBytes();
       if (!bytes) {
-        alert(
-          "Could not load Master.pdf. Put Master.pdf next to this page and open via a local or hosted server, or use Change PDF template to pick the file."
-        );
+        alert("Could not load Master.pdf. Put Master.pdf in the same folder as this page and open the app over HTTP (local server).");
         return;
       }
       state.qualifications = sanitizeQualifications(readQualificationsFromDom());
@@ -1144,18 +1262,6 @@ function init() {
     }
   });
 
-  document.getElementById("arfTemplateFile").addEventListener("change", async (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    try {
-      memoryTemplateBytes = new Uint8Array(await f.arrayBuffer());
-      await idbPutArfTemplate(memoryTemplateBytes);
-      alert("Saved this PDF as the template in your browser. Use Download filled ARF PDF.");
-    } catch (err) {
-      alert(`Could not save template: ${err.message || err}`);
-    }
-    e.target.value = "";
-  });
 }
 
 loadCatalog()

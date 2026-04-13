@@ -43,16 +43,48 @@ AIRCRAFT_CHECK_2025 = {
     "PA-44": "Check Box7",
 }
 
+AIRCRAFT_CHECK_CLEAN_LEGACY = {
+    "PA-28": "Check Box2_1",
+    "SR-20": "Check Box3_1",
+    "C-172": "Check Box4_1",
+    "C-172SP": "Check Box5_1",
+    "PA-44": "Check Box5_2",
+}
+
+AIRCRAFT_CHECK_CLEAN = {
+    "PA-28": "Check Box2_1_1",
+    "SR-20": "Check Box3_1_1",
+    "C-172": "Check Box4_1_1",
+    "C-172SP": "Check Box5_1_1",
+    "PA-44": "Check Box5_2_1",
+}
+
+AIRCRAFT_CHECK_CLEAN_OPT = {
+    "PA-28": "A 1",
+    "SR-20": "A 2",
+    "C-172": "A 3",
+    "C-172SP": "A 4",
+    "PA-44": "A 5",
+}
+
 
 def detect_layout(m: dict[str, list]) -> str:
-    """v1 legacy; v2025 bare names; v2 row Equipment combos; v3 compact (cadet Text1–10, TIME only equipment)."""
-    if not m.get("NAME_1_1_1"):
-        if m.get("NAME"):
-            return "v2025"
-        return "v1"
-    if m.get("Equipment 2_1#1") or m.get("Equipment 1_1"):
-        return "v2"
-    return "v3"
+    """v1 legacy; v2025; vclean (*_1_1 row fields); vclean_opt (IQ/A/B/D checkboxes); vclean_old (*_1); v2/v3 new masters."""
+    if m.get("NAME_1_1_1"):
+        if m.get("Equipment 2_1#1") or m.get("Equipment 1_1"):
+            return "v2"
+        return "v3"
+    if m.get("Course 1_1_1"):
+        if m.get("NAME_1_1"):
+            return "vclean"
+        if m.get("IQ 1"):
+            return "vclean_opt"
+        return "vclean"
+    if m.get("NAME_1"):
+        return "vclean_old"
+    if m.get("NAME"):
+        return "v2025"
+    return "v1"
 
 
 def layout_new_master(layout: str) -> bool:
@@ -62,6 +94,22 @@ def layout_new_master(layout: str) -> bool:
 def course_field_name(layout: str, row_index: int) -> str:
     if layout == "v2025":
         return f"Course {row_index}"
+    if layout in ("vclean", "vclean_opt"):
+        if row_index == 1:
+            return "Course 1_1_1"
+        if row_index == 2:
+            return "Course 2_2_1"
+        if row_index == 10:
+            return "Course 10_1_1"
+        return f"Course {row_index}_1_1"
+    if layout == "vclean_old":
+        if row_index == 1:
+            return "Course 1_1"
+        if row_index == 2:
+            return "Course 2_2"
+        if row_index == 10:
+            return "Course 10_1"
+        return f"Course {row_index}_1"
     if row_index == 1:
         return "Course 1"
     if row_index == 2:
@@ -76,6 +124,10 @@ def course_field_name(layout: str, row_index: int) -> str:
 
 
 def block_field_name(layout: str, row_index: int) -> str | None:
+    if layout in ("vclean", "vclean_opt"):
+        return f"BLOCK {row_index}_1_1"
+    if layout == "vclean_old":
+        return f"BLOCK {row_index}_1"
     if layout == "v2025":
         if row_index == 10:
             return None
@@ -102,6 +154,10 @@ def block_field_name(layout: str, row_index: int) -> str | None:
 def time_field_name(layout: str, row_index: int) -> str | None:
     if layout == "v2025":
         return f"TIME {row_index}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"TIME {row_index}_1_1"
+    if layout == "vclean_old":
+        return f"TIME {row_index}_1"
     if layout in ("v2", "v3"):
         return f"TIME {row_index}_1_1_1"
     return None
@@ -110,6 +166,10 @@ def time_field_name(layout: str, row_index: int) -> str | None:
 def equipment_field_names(layout: str, row_index: int) -> list[str]:
     if layout == "v2025":
         return [f"Equipment {row_index}"]
+    if layout in ("vclean", "vclean_opt"):
+        return [f"Equipment {row_index}_1_1"]
+    if layout == "vclean_old":
+        return [f"Equipment {row_index}_1"]
     if layout == "v3":
         return []
     if row_index == 1:
@@ -121,7 +181,7 @@ def equipment_field_names(layout: str, row_index: int) -> list[str]:
 
 def equipment_text_field_names(layout: str, row_index: int) -> list[str]:
     """Acrobat 'equipment' column as plain text (same suffix pattern as TIME/LESSON)."""
-    if layout in ("v2025", "v3"):
+    if layout in ("v2025", "vclean", "vclean_opt", "vclean_old", "v3"):
         return []
     if layout == "v2":
         base = f"Equipment {row_index}_1_1_1"
@@ -144,42 +204,68 @@ def equipment_display_text(layout: str, idx: int, block: str, eq: str) -> str:
 def student_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"STUDENT {idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"STUDENT {idx}_1_1"
+    if layout == "vclean_old":
+        return f"STUDENT {idx}_1"
     return f"STUDENT {idx}_1_1_1" if layout_new_master(layout) else f"STUDENT {idx}_1_1"
 
 
 def id_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"ID {idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"ID {idx}_1_1"
+    if layout == "vclean_old":
+        return f"ID {idx}_1"
     return f"ID {idx}_1_1_1" if layout_new_master(layout) else f"ID {idx}_1_1"
 
 
 def lesson_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"LESSON {idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"LESSON {idx}_1_1"
+    if layout == "vclean_old":
+        return f"LESSON {idx}_1"
     return f"LESSON {idx}_1_1_1" if layout_new_master(layout) else f"LESSON {idx}_1_1"
 
 
 def remarks_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"REMARKSRow{idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"REMARKSRow{idx}_1_1"
+    if layout == "vclean_old":
+        return f"REMARKSRow{idx}_1"
     return f"REMARKSRow{idx}_1_1_1" if layout_new_master(layout) else f"REMARKSRow{idx}_1_1"
 
 
 def type_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"Type {idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"Type {idx}_1_1"
+    if layout == "vclean_old":
+        return f"Type {idx}_1"
     return f"Type {idx}_1_1_1" if layout_new_master(layout) else f"Type {idx}_1_1"
 
 
 def last_lesson_field(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"Text{6 + idx}"
+    if layout in ("vclean", "vclean_opt"):
+        return f"Text{6 + idx}_1_1"
+    if layout == "vclean_old":
+        return f"Text{6 + idx}_1"
     return f"Text{6 + idx}_1_1_1" if layout_new_master(layout) else f"Text{6 + idx}_1_1"
 
 
 def cadet_dropdown(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"Dropdown{idx}"
+    if layout in ("vclean", "vclean_opt", "vclean_old"):
+        return ""
     if layout == "v3":
         return f"Text{idx}"
     if layout == "v2":
@@ -202,11 +288,31 @@ def cadet_dropdown(layout: str, idx: int) -> str:
 def day_night_dropdown(layout: str, idx: int) -> str:
     if layout == "v2025":
         return f"Dropdown{10 + idx}"
+    if layout in ("vclean", "vclean_opt", "vclean_old"):
+        return ""
     if layout == "v3":
         return f"Dropdown{10 + idx}" if idx <= 8 else ""
     if idx <= 8:
         return f"Dropdown{10 + idx}"
     return "Dropdown19_1_1" if idx == 9 else "Dropdown20_1_1"
+
+
+def day_night_text_field(layout: str, idx: int) -> str | None:
+    """Clean masters: no Dropdown for row D/N — use TIME text column."""
+    if layout in ("vclean", "vclean_opt"):
+        return f"TIME {idx}_1_1"
+    if layout == "vclean_old":
+        return f"TIME {idx}_1"
+    return None
+
+
+def cadet_last_lesson_text_field(layout: str, idx: int) -> str | None:
+    """Clean masters: last-lesson date only in Text(6+idx); cadet goes to ID column (fill_pdf)."""
+    if layout in ("vclean", "vclean_opt"):
+        return f"Text{6 + idx}_1_1"
+    if layout == "vclean_old":
+        return f"Text{6 + idx}_1"
+    return None
 
 
 def format_date_us(value: str) -> str:
@@ -510,6 +616,12 @@ def sanitize_qualifications(raw) -> dict:
 def set_aircraft(m: dict[str, list[fitz.Widget]], aircraft: dict, layout: str) -> None:
     if layout == "v2025":
         mapping = AIRCRAFT_CHECK_2025
+    elif layout == "vclean_opt":
+        mapping = AIRCRAFT_CHECK_CLEAN_OPT
+    elif layout == "vclean":
+        mapping = AIRCRAFT_CHECK_CLEAN
+    elif layout == "vclean_old":
+        mapping = AIRCRAFT_CHECK_CLEAN_LEGACY
     elif layout_new_master(layout):
         mapping = AIRCRAFT_CHECK_V2
     else:
@@ -534,6 +646,45 @@ def set_checkboxes_qualifications(m: dict[str, list[fitz.Widget]], q: dict, layo
             ("mei141", "A 3"),
         ]
         uk_fields = [("FI", "A 0"), ("IRI", "A 4")]
+    elif layout == "vclean":
+        ins_fields = [
+            ("CFI", "Q 1_1_1"),
+            ("CFII", "Q 1_2_1"),
+            ("MEI", "Q 1_3_1"),
+            ("SPIN", "Q 1_4_1"),
+        ]
+        add_fields = [
+            ("cfiA141", "A 1_1_1"),
+            ("cfiI141", "A 2_1_1"),
+            ("mei141", "A 3_1_1"),
+        ]
+        uk_fields = [("FI", "A 4_1_1"), ("IRI", "A 5_1_1")]
+    elif layout == "vclean_opt":
+        ins_fields = [
+            ("CFI", "IQ 1"),
+            ("CFII", "IQ 2"),
+            ("MEI", "IQ 3"),
+            ("SPIN", "IQ 4"),
+        ]
+        add_fields = [
+            ("cfiA141", "B 1"),
+            ("cfiI141", "B 2"),
+            ("mei141", "C 3"),
+        ]
+        uk_fields = [("FI", "D 1"), ("IRI", "D 2"), ("CRI", "D 3")]
+    elif layout == "vclean_old":
+        ins_fields = [
+            ("CFI", "Q 1_1"),
+            ("CFII", "Q 1_2"),
+            ("MEI", "Q 1_3"),
+            ("SPIN", "Q 1_4"),
+        ]
+        add_fields = [
+            ("cfiA141", "A 1_1"),
+            ("cfiI141", "A 2_1"),
+            ("mei141", "A 3_1"),
+        ]
+        uk_fields = [("FI", "A 4_1"), ("IRI", "A 5_1")]
     elif layout_new_master(layout):
         ins_fields = [
             ("CFI", "Q 1_1_1_1"),
@@ -609,6 +760,24 @@ def fill_pdf(template: Path, data: dict, output: Path) -> None:
         date_f = "DATE"
         notes_f = "NOTES TO SCHEDULING"
         gm_f = "GROUP MANAGER"
+    elif layout == "vclean":
+        name_f = "NAME_1_1"
+        day_f = "Day_1_1"
+        date_f = "DATE_1_1"
+        notes_f = "NOTES TO SCHEDULING_1_1"
+        gm_f = "GROUP MANAGER_1_1"
+    elif layout == "vclean_opt":
+        name_f = "NAME"
+        day_f = "Day"
+        date_f = "DATE"
+        notes_f = "NOTES TO SCHEDULING_1_1"
+        gm_f = "GROUP MANAGER_1_1"
+    elif layout == "vclean_old":
+        name_f = "NAME_1"
+        day_f = "Day_1"
+        date_f = "DATE_1"
+        notes_f = "NOTES TO SCHEDULING_1"
+        gm_f = "GROUP MANAGER_1"
     else:
         name_f = "NAME_1_1_1" if layout_new_master(layout) else "NAME_1_1"
         day_f = "Day_1_1_1" if layout_new_master(layout) else "Day_1_1"
@@ -646,7 +815,10 @@ def fill_pdf(template: Path, data: dict, output: Path) -> None:
 
         if str(row.get("student", "")).strip():
             set_text_all(m, student_field(layout, idx), str(row["student"]))
-        if str(row.get("studentId", "")).strip():
+        id_cell = str(row.get("cadetStatus") or row.get("studentId", "") or "").strip()
+        if layout in ("vclean", "vclean_opt", "vclean_old") and id_cell:
+            set_text_all(m, id_field(layout, idx), id_cell)
+        elif str(row.get("studentId", "")).strip():
             set_text_all(m, id_field(layout, idx), str(row["studentId"]))
 
         course_code = str(row.get("courseShortCode") or row.get("courseCode") or "").strip()
@@ -675,23 +847,41 @@ def fill_pdf(template: Path, data: dict, output: Path) -> None:
             set_text_all(m, remarks_field(layout, idx), str(row["remarks"]))
 
         cadet = str(row.get("cadetStatus", "")).strip()
-        if cadet:
-            cdn = cadet_dropdown(layout, idx)
-            if cdn:
-                if layout == "v3":
-                    set_text_all(m, cdn, cadet)
-                else:
-                    set_combo_all(m, cdn, cadet)
-
         dn = str(row.get("dayNight", "")).strip()
-        if dn:
+        ll = str(row.get("lastLessonDate", "")).strip()
+
+        dnt = day_night_text_field(layout, idx)
+        clt = cadet_last_lesson_text_field(layout, idx)
+        if dnt is not None:
+            if dn:
+                set_text_all(m, dnt, dn)
+        elif dn:
             ddn = day_night_dropdown(layout, idx)
             if ddn:
                 set_combo_all(m, ddn, dn)
 
-        ll = str(row.get("lastLessonDate", "")).strip()
-        if ll:
-            set_text_all(m, last_lesson_field(layout, idx), format_month_day(ll))
+        if clt is not None:
+            if layout in ("vclean", "vclean_opt", "vclean_old"):
+                if ll:
+                    set_text_all(m, clt, format_month_day(ll))
+            else:
+                parts: list[str] = []
+                if cadet:
+                    parts.append(cadet)
+                if ll:
+                    parts.append(format_month_day(ll))
+                if parts:
+                    set_text_all(m, clt, " · ".join(parts))
+        else:
+            if cadet:
+                cdn = cadet_dropdown(layout, idx)
+                if cdn:
+                    if layout == "v3":
+                        set_text_all(m, cdn, cadet)
+                    else:
+                        set_combo_all(m, cdn, cadet)
+            if ll:
+                set_text_all(m, last_lesson_field(layout, idx), format_month_day(ll))
 
         eq = str(row.get("equipment", "")).strip()
         disp = equipment_display_text(layout, idx, block, eq)

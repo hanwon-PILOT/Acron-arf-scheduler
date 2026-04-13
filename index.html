@@ -17,12 +17,16 @@
         <h2>Instructor &amp; date</h2>
         <div class="grid-2">
           <div>
-            <label for="instructorProfileSelect">Instructor profile</label>
+            <label for="instructorProfileSelect">Instructor</label>
             <select id="instructorProfileSelect" aria-label="Load saved instructor profile">
               <option value="">— Select instructor —</option>
             </select>
+            <div class="row-toolbar" style="margin-top: 0.35rem; flex-wrap: wrap">
+              <button type="button" class="btn-secondary" id="openInstructorNameModal">Manage instructor names</button>
+              <button type="button" class="btn-secondary" id="openInstructorProfileModal">Manage instructor profiles</button>
+            </div>
             <p class="hint" style="margin: 0.35rem 0 0">
-              Pick a name to load everything saved for that instructor. You can edit the name below; saving keeps a separate profile per name.
+              Names list is like the student list; each profile stores form data for that instructor (qualifications, rows, notes, group manager).
             </p>
           </div>
           <div>
@@ -76,7 +80,6 @@
         <p class="hint">Student names and dropdown option lists are stored only in this browser.</p>
         <div class="row-toolbar">
           <button type="button" class="btn-primary" id="openNameManager">Manage names</button>
-          <button type="button" class="btn-secondary" id="openInstructorProfileModal">Manage instructor profiles</button>
           <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
           <button type="button" class="btn-secondary" id="openFlightTypeListEditor">Type list</button>
           <button type="button" class="btn-secondary" id="openEquipmentListEditor">Equipment list</button>
@@ -110,19 +113,8 @@
         </select>
       </section>
 
-      <section class="card no-print">
-        <h2>Download filled PDF</h2>
-        <p class="hint">
-          Values are written into the same fields as <code>Master.pdf</code>. The app loads <code>Master.pdf</code> from this folder. If you previously saved another PDF in the browser, use <strong>Change PDF template</strong> and pick the current
-          <code>Master.pdf</code> once.
-        </p>
-        <div class="row-toolbar">
-          <button type="button" class="btn-primary" id="downloadArfPdf">Download filled ARF PDF</button>
-          <label class="btn-secondary" style="cursor: pointer; display: inline-block; margin: 0; padding: 0.45rem 0.85rem">
-            <input type="file" id="arfTemplateFile" accept="application/pdf,.pdf" hidden />
-            Change PDF template
-          </label>
-        </div>
+      <section class="card no-print" style="padding: 1rem 1.25rem">
+        <button type="button" class="btn-primary" id="downloadArfPdf" style="width: 100%">Download filled ARF PDF</button>
       </section>
     </main>
 
@@ -141,6 +133,22 @@
         </div>
         <ul class="name-list" id="nameList"></ul>
         <button type="button" class="btn-secondary" id="closeNameModal" style="width: 100%">Close</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="instructorNameModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-labelledby="instructorNameModalTitle">
+        <h2 id="instructorNameModalTitle">Instructor names</h2>
+        <p class="hint" style="margin-top: 0">Names appear in the instructor dropdown. Removing a name does not delete its saved profile.</p>
+        <div>
+          <label for="newInstructorRosterName">Add name</label>
+          <div class="row-toolbar" style="margin-top: 0.25rem">
+            <input type="text" id="newInstructorRosterName" style="flex: 1" placeholder="Full name" autocomplete="name" />
+            <button type="button" class="btn-primary" id="addInstructorRosterBtn">Add</button>
+          </div>
+        </div>
+        <ul class="name-list" id="instructorRosterList"></ul>
+        <button type="button" class="btn-secondary" id="closeInstructorNameModal" style="width: 100%">Close</button>
       </div>
     </div>
 

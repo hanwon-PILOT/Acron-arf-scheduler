@@ -11,16 +11,31 @@ const pdfPath = process.env.PDF_VERIFY_PATH
   ? path.resolve(process.env.PDF_VERIFY_PATH)
   : path.join(root, "Master.pdf");
 
-/** @returns {"legacy" | "2025" | "v2" | "v3"} */
+/** @returns {"legacy" | "2025" | "clean" | "cleanLegacy" | "v2" | "v3"} */
 function detectLayout(form) {
   try {
     form.getTextField("NAME_1_1_1");
   } catch {
     try {
-      form.getTextField("NAME");
-      return "2025";
+      form.getDropdown("Course 1_1_1");
+      return "clean";
     } catch {
-      return "legacy";
+      try {
+        form.getOptionList("Course 1_1_1");
+        return "clean";
+      } catch {
+        try {
+          form.getTextField("NAME_1");
+          return "cleanLegacy";
+        } catch {
+          try {
+            form.getTextField("NAME");
+            return "2025";
+          } catch {
+            return "legacy";
+          }
+        }
+      }
     }
   }
   try {
@@ -37,6 +52,7 @@ function detectLayout(form) {
 }
 
 function dayNightFieldName(layout, idx) {
+  if (layout === "clean" || layout === "cleanLegacy") return null;
   if (layout === "2025") return `Dropdown${10 + idx}`;
   if (layout === "v3") return idx <= 8 ? `Dropdown${10 + idx}` : null;
   if (idx <= 8) return `Dropdown${10 + idx}`;
@@ -44,6 +60,7 @@ function dayNightFieldName(layout, idx) {
 }
 
 function cadetFieldName(layout, idx) {
+  if (layout === "clean" || layout === "cleanLegacy") return null;
   if (layout === "2025") return `Dropdown${idx}`;
   if (layout === "v3") return `Text${idx}`;
   if (layout === "v2") {
@@ -60,6 +77,8 @@ function cadetFieldName(layout, idx) {
 
 function equipmentFieldNames(layout, idx) {
   if (layout === "2025") return [`Equipment ${idx}`];
+  if (layout === "clean") return [`Equipment ${idx}_1_1`];
+  if (layout === "cleanLegacy") return [`Equipment ${idx}_1`];
   if (layout === "v2") {
     if (idx === 1) return ["Equipment 1_1", "Equipment 1_1#1"];
     if (idx <= 9) return [`Equipment ${idx}_1#1`];
@@ -225,8 +244,9 @@ function selectFormChoiceIf(form, name, value, optionListBackstop) {
         /* */
       }
     } else {
+      const equipVal = layout === "clean" || layout === "cleanLegacy" ? "PA28" : "AATD17";
       for (const name of equipmentFieldNames(layout, idx)) {
-        selectDropdownIf(form, name, "AATD17");
+        selectDropdownIf(form, name, equipVal);
       }
     }
   }
@@ -235,12 +255,26 @@ function selectFormChoiceIf(form, name, value, optionListBackstop) {
   const doc2 = await PDFDocument.load(out);
   const f2 = doc2.getForm();
 
-  const d1 = f2.getField("Dropdown11").getSelected();
-  const d2 = f2.getField("Dropdown12").getSelected();
-  if (!d1 || normStr(d1[0]) !== "Day") throw new Error(`Row1 Day/Night expected Day, got ${d1}`);
-  if (!d2 || normStr(d2[0]) !== "Night") throw new Error(`Row2 Day/Night expected Night, got ${d2}`);
+  if (layout !== "clean" && layout !== "cleanLegacy") {
+    const d1 = f2.getField("Dropdown11").getSelected();
+    const d2 = f2.getField("Dropdown12").getSelected();
+    if (!d1 || normStr(d1[0]) !== "Day") throw new Error(`Row1 Day/Night expected Day, got ${d1}`);
+    if (!d2 || normStr(d2[0]) !== "Night") throw new Error(`Row2 Day/Night expected Night, got ${d2}`);
+  }
 
-  if (layout === "2025") {
+  if (layout === "clean") {
+    const e1 = f2.getDropdown("Equipment 1_1_1").getSelected();
+    if (!e1 || normStr(e1[0]) !== "PA28") throw new Error(`Clean row1 Equipment expected PA28, got ${e1}`);
+    const e10 = f2.getDropdown("Equipment 10_1_1").getSelected();
+    if (!e10 || normStr(e10[0]) !== "PA28") throw new Error(`Clean row10 Equipment expected PA28, got ${e10}`);
+    console.log("verify-pdf-fill: OK (clean Master *_1_1 fields)");
+  } else if (layout === "cleanLegacy") {
+    const e1 = f2.getDropdown("Equipment 1_1").getSelected();
+    if (!e1 || normStr(e1[0]) !== "PA28") throw new Error(`CleanLegacy row1 Equipment expected PA28, got ${e1}`);
+    const e10 = f2.getDropdown("Equipment 10_1").getSelected();
+    if (!e10 || normStr(e10[0]) !== "PA28") throw new Error(`CleanLegacy row10 Equipment expected PA28, got ${e10}`);
+    console.log("verify-pdf-fill: OK (clean Master *_1 fields)");
+  } else if (layout === "2025") {
     const d9 = f2.getField("Dropdown19").getSelected();
     if (!d9 || normStr(d9[0]) !== "Day") throw new Error(`Row9 Day/Night expected Day, got ${d9}`);
     const c1 = f2.getField("Dropdown1").getSelected();
