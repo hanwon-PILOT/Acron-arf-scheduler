@@ -18,8 +18,14 @@ function assetUrl(filename) {
   return u.href;
 }
 
-const STORAGE_STUDENTS = "acron_arf_v1_students";
-const STORAGE_STUDENT_COURSE = "acron_arf_v1_student_course";
+/** Legacy single shared list (migrated once into per-instructor storage). */
+const STORAGE_STUDENTS_LEGACY = "acron_arf_v1_students";
+const STORAGE_STUDENT_COURSE_LEGACY = "acron_arf_v1_student_course";
+const STORAGE_STUDENTS_BY_INSTRUCTOR = "acron_arf_v3_students_by_instructor";
+const STORAGE_STUDENT_COURSE_BY_INSTRUCTOR = "acron_arf_v3_student_course_by_instructor";
+const STORAGE_LEGACY_STUDENTS_MIGRATED = "acron_arf_v3_students_migrated_v1";
+/** Bucket when no instructor profile is committed (empty select + name not blurred to a profile). */
+const STUDENTS_UNASSIGNED_KEY = "__unassigned__";
 const STORAGE_DRAFT = "acron_arf_v1_draft";
 const STORAGE_LAST_INSTRUCTOR = "acron_arf_v1_last_instructor";
 const STORAGE_INSTRUCTOR_HISTORY = "acron_arf_v1_instructor_history";
@@ -86,38 +92,109 @@ function refreshOptionLists() {
   equipmentOptions = loadStringList(STORAGE_EQUIPMENT, DEFAULT_EQUIPMENT);
 }
 
-function loadStudents() {
+function loadStudentsMap() {
   try {
-    const raw = localStorage.getItem(STORAGE_STUDENTS);
-    if (!raw) return [];
-    const p = JSON.parse(raw);
-    return Array.isArray(p) ? p.filter((s) => typeof s === "string" && s.trim()) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveStudents(list) {
-  localStorage.setItem(STORAGE_STUDENTS, JSON.stringify(list));
-}
-
-function loadStudentCourseMap() {
-  try {
-    const raw = localStorage.getItem(STORAGE_STUDENT_COURSE);
-    if (!raw) return {};
-    const p = JSON.parse(raw);
-    return p && typeof p === "object" && !Array.isArray(p) ? p : {};
+    const raw = localStorage.getItem(STORAGE_STUDENTS_BY_INSTRUCTOR);
+    const o = raw ? JSON.parse(raw) : {};
+    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
   } catch {
     return {};
   }
 }
 
-function saveStudentCourseMap(map) {
-  localStorage.setItem(STORAGE_STUDENT_COURSE, JSON.stringify(map));
+function saveStudentsMap(map) {
+  localStorage.setItem(STORAGE_STUDENTS_BY_INSTRUCTOR, JSON.stringify(map));
 }
 
-/** @type {Record<string, string>} student display name → course id */
-let studentCourseMap = loadStudentCourseMap();
+function loadCourseMapsByInstructor() {
+  try {
+    const raw = localStorage.getItem(STORAGE_STUDENT_COURSE_BY_INSTRUCTOR);
+    const o = raw ? JSON.parse(raw) : {};
+    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCourseMapsByInstructor(map) {
+  localStorage.setItem(STORAGE_STUDENT_COURSE_BY_INSTRUCTOR, JSON.stringify(map));
+}
+
+/** Copy legacy global student list + default-course map into the active instructor bucket once. */
+function migrateLegacySharedStudents() {
+  try {
+    if (localStorage.getItem(STORAGE_LEGACY_STUDENTS_MIGRATED)) return;
+    const rawList = localStorage.getItem(STORAGE_STUDENTS_LEGACY);
+    const rawCourse = localStorage.getItem(STORAGE_STUDENT_COURSE_LEGACY);
+    if (!rawList && !rawCourse) {
+      localStorage.setItem(STORAGE_LEGACY_STUDENTS_MIGRATED, "1");
+      return;
+    }
+    let list = [];
+    if (rawList) {
+      const p = JSON.parse(rawList);
+      list = Array.isArray(p) ? p.filter((s) => typeof s === "string" && s.trim()) : [];
+    }
+    let courses = {};
+    if (rawCourse) {
+      const p = JSON.parse(rawCourse);
+      courses = p && typeof p === "object" && !Array.isArray(p) ? p : {};
+    }
+    const target = profileKey(getLastActiveInstructor()) || profileKey(getLastInstructorName()) || STUDENTS_UNASSIGNED_KEY;
+    const smap = loadStudentsMap();
+    const cmap = loadCourseMapsByInstructor();
+    if (!smap[target] || !Array.isArray(smap[target]) || smap[target].length === 0) {
+      smap[target] = list;
+    }
+    if (!cmap[target] || typeof cmap[target] !== "object") {
+      cmap[target] = { ...courses };
+    } else {
+      cmap[target] = { ...courses, ...cmap[target] };
+    }
+    saveStudentsMap(smap);
+    saveCourseMapsByInstructor(cmap);
+    localStorage.removeItem(STORAGE_STUDENTS_LEGACY);
+    localStorage.removeItem(STORAGE_STUDENT_COURSE_LEGACY);
+    localStorage.setItem(STORAGE_LEGACY_STUDENTS_MIGRATED, "1");
+  } catch {
+    /* */
+  }
+}
+
+function loadStudentsListForKey(bucketKey) {
+  const smap = loadStudentsMap();
+  const list = smap[bucketKey];
+  return Array.isArray(list) ? list.filter((s) => typeof s === "string" && s.trim()) : [];
+}
+
+function loadCourseMapForKey(bucketKey) {
+  const cmap = loadCourseMapsByInstructor();
+  const m = cmap[bucketKey];
+  return m && typeof m === "object" && !Array.isArray(m) ? { ...m } : {};
+}
+
+function persistStudentsAndCourses(bucketKey) {
+  const smap = loadStudentsMap();
+  smap[bucketKey] = [...students];
+  saveStudentsMap(smap);
+  const cmap = loadCourseMapsByInstructor();
+  cmap[bucketKey] = { ...studentCourseMap };
+  saveCourseMapsByInstructor(cmap);
+}
+
+function deleteStudentsDataForInstructor(name) {
+  const k = profileKey(name);
+  if (!k) return;
+  const smap = loadStudentsMap();
+  delete smap[k];
+  saveStudentsMap(smap);
+  const cmap = loadCourseMapsByInstructor();
+  delete cmap[k];
+  saveCourseMapsByInstructor(cmap);
+}
+
+/** @type {Record<string, string>} student display name → course id (current instructor bucket) */
+let studentCourseMap = {};
 
 /** Master.pdf Course dropdown uses CASEL for both syllabi. */
 function courseShortCodeForPdf(shortCode) {
@@ -402,7 +479,14 @@ function buildInitialState() {
 let state = buildInitialState();
 /** Profile JSON key while editing; only matches typed name after blur (avoids saving "B", "Bo" while typing). */
 let profileSaveKey = profileKey(state.instructorName);
-let students = loadStudents();
+migrateLegacySharedStudents();
+const _initialStudentBucket = profileSaveKey.trim() || STUDENTS_UNASSIGNED_KEY;
+let students = loadStudentsListForKey(_initialStudentBucket);
+studentCourseMap = loadCourseMapForKey(_initialStudentBucket);
+
+function studentBucketKey() {
+  return profileSaveKey.trim() || STUDENTS_UNASSIGNED_KEY;
+}
 
 function loadInstructorRoster() {
   try {
@@ -547,6 +631,7 @@ function applyStateToDom() {
 function bindHeader() {
   els.instructorProfileSelect.addEventListener("change", () => {
     if (instructorSelectSuppress) return;
+    persistStudentsAndCourses(studentBucketKey());
     const prevKey = profileKey(state.instructorName);
     if (prevKey) saveProfile(prevKey, draftSnapshot());
     const selVal = els.instructorProfileSelect.value;
@@ -567,6 +652,9 @@ function bindHeader() {
       }
       profileSaveKey = profileKey(selVal);
     }
+    const nextBucket = studentBucketKey();
+    students = loadStudentsListForKey(nextBucket);
+    studentCourseMap = loadCourseMapForKey(nextBucket);
     applyStateToDom();
     rememberInstructorName(state.instructorName);
     persistSoon();
@@ -586,7 +674,16 @@ function bindHeader() {
   });
 
   els.instructorName.addEventListener("blur", () => {
+    const prevBucket = studentBucketKey();
+    persistStudentsAndCourses(prevBucket);
     profileSaveKey = profileKey(state.instructorName);
+    const nextBucket = studentBucketKey();
+    if (nextBucket !== prevBucket) {
+      students = loadStudentsListForKey(nextBucket);
+      studentCourseMap = loadCourseMapForKey(nextBucket);
+      if (els.nameModal.classList.contains("open")) renderNameList();
+      renderRows();
+    }
     const k = profileSaveKey;
     if (k) {
       saveProfile(k, draftSnapshot());
@@ -796,7 +893,7 @@ function renderRows() {
       const cid = e.target.value;
       if (st && cid) {
         studentCourseMap[st] = cid;
-        saveStudentCourseMap(studentCourseMap);
+        persistStudentsAndCourses(studentBucketKey());
       }
       renderRows();
       persistSoon();
@@ -871,7 +968,7 @@ function renderNameList() {
       const v = sel.value.trim();
       if (v) studentCourseMap[name] = v;
       else delete studentCourseMap[name];
-      saveStudentCourseMap(studentCourseMap);
+      persistStudentsAndCourses(studentBucketKey());
       renderRows();
       persistSoon();
     });
@@ -883,9 +980,8 @@ function renderNameList() {
     del.addEventListener("click", () => {
       const removed = students[i];
       students = students.filter((_, j) => j !== i);
-      saveStudents(students);
       delete studentCourseMap[removed];
-      saveStudentCourseMap(studentCourseMap);
+      persistStudentsAndCourses(studentBucketKey());
       renderNameList();
       renderRows();
       persistSoon();
@@ -914,7 +1010,7 @@ function addStudent() {
   if (!n) return;
   if (!students.includes(n)) students.push(n);
   students.sort((a, b) => a.localeCompare(b, "en"));
-  saveStudents(students);
+  persistStudentsAndCourses(studentBucketKey());
   els.newStudentName.value = "";
   renderNameList();
   renderRows();
@@ -998,10 +1094,13 @@ function renderInstructorProfileList() {
     del.addEventListener("click", () => {
       if (!confirm(`Delete saved profile for "${name}"?`)) return;
       deleteProfile(name);
+      deleteStudentsDataForInstructor(name);
       if (profileKey(state.instructorName) === name) {
         state = defaultEmptyState();
         state.instructorName = "";
         profileSaveKey = "";
+        students = loadStudentsListForKey(studentBucketKey());
+        studentCourseMap = loadCourseMapForKey(studentBucketKey());
         applyStateToDom();
       }
       refreshInstructorProfileSelect();

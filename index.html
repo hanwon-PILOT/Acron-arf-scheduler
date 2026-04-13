@@ -7,12 +7,15 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <title>Acron ARF — Schedule Request</title>
     <!-- Bump ?v= when shipping so Safari/GitHub Pages drop stale JS/CSS (must match app.js entry). -->
-    <link rel="stylesheet" href="styles.css?v=4" />
+    <link rel="stylesheet" href="styles.css?v=5" />
   </head>
   <body>
     <header class="app-header">
       <h1>Acron Aviation — ARF Schedule Request</h1>
-      <p>Fill the form in your browser (Mac or iPhone). Data stays on this device unless you download a PDF.</p>
+      <div class="app-header-taglines">
+        <p lang="ko">선택한 교관(강사) 프로필마다 폼 내용과 학생 이름 목록이 이 기기에 따로 저장됩니다.</p>
+        <p lang="en">The form and each instructor’s student name list are saved separately per profile on this device.</p>
+      </div>
     </header>
 
     <main>
@@ -80,7 +83,9 @@
 
       <section class="card no-print">
         <h2>Student names &amp; lists</h2>
-        <p class="hint">Student names and dropdown option lists are stored only in this browser.</p>
+        <p class="hint">
+          Student names are kept per instructor profile; cadet / type / equipment lists below are shared for this browser.
+        </p>
         <div class="row-toolbar">
           <button type="button" class="btn-primary" id="openNameManager">Manage names</button>
           <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
@@ -182,6 +187,6 @@
       </div>
     </div>
 
-    <script type="module" src="app.js?v=4"></script>
+    <script type="module" src="app.js?v=5"></script>
   </body>
 </html>

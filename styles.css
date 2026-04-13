@@ -43,6 +43,21 @@ header.app-header p {
   font-size: 0.88rem;
 }
 
+.app-header-taglines {
+  margin-top: 0.5rem;
+}
+
+.app-header-taglines p {
+  margin: 0.3rem 0 0;
+  opacity: 0.92;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.app-header-taglines p:first-child {
+  margin-top: 0;
+}
+
 main {
   max-width: 960px;
   margin: 0 auto;
