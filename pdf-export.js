@@ -656,10 +656,11 @@ function detectFieldSpec(form) {
   }
 }
 
-/** Master.pdf lists CASEL once; app distinguishes CASEL.1 / CASEL.2 in the UI only. */
+/** Master.pdf lists CASEL once; app distinguishes CASEL.1 / CASEL.2 in the UI only. CFI-A for airplane CFI. */
 function normalizeCourseCodeForPdf(code) {
   const s = String(code || "").trim();
   if (s === "CASEL1" || s === "CASEL2") return "CASEL";
+  if (s === "CFI") return "CFI-A";
   return s;
 }
 

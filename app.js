@@ -196,10 +196,11 @@ function deleteStudentsDataForInstructor(name) {
 /** @type {Record<string, string>} student display name → course id (current instructor bucket) */
 let studentCourseMap = {};
 
-/** Master.pdf Course dropdown uses CASEL for both syllabi. */
+/** Master.pdf Course dropdown uses CASEL for both syllabi; CFI-A for airplane CFI. */
 function courseShortCodeForPdf(shortCode) {
   const s = String(shortCode || "").trim();
   if (s === "CASEL1" || s === "CASEL2") return "CASEL";
+  if (s === "CFI") return "CFI-A";
   return s;
 }
 

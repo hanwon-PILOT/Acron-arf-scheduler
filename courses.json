@@ -542,8 +542,14 @@
         },
         {
           "stage": 3,
-          "code": "30-DL",
+          "code": "30-DL (CAAC & CAA)",
           "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "30-AATD/FTD (PPP/CRG)",
+          "equipment": "AATD/FTD",
           "times": {}
         },
         {
@@ -554,7 +560,13 @@
         },
         {
           "stage": 3,
-          "code": "32-AA TD/FTD",
+          "code": "32-DL (CAAC & CAA)",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 3,
+          "code": "32-AATD/FTD (PPP/CRG)",
           "equipment": "AATD/FTD",
           "times": {}
         },
@@ -629,7 +641,7 @@
     {
       "id": "casel1",
       "shortCode": "CASEL1",
-      "name": "Commercial ASEL — CASEL.1",
+      "name": "Commercial ASEL — CASEL1 141.55e",
       "timeColumns": [
         {
           "key": "scheduleTime",
@@ -837,7 +849,7 @@
     {
       "id": "casel2",
       "shortCode": "CASEL2",
-      "name": "Commercial ASEL — CASEL.2",
+      "name": "Commercial ASEL — CASEL2 APP D",
       "timeColumns": [
         {
           "key": "schedulableTime",
@@ -1247,6 +1259,268 @@
           "times": {}
         }
       ]
+    },
+    {
+      "id": "camel",
+      "shortCode": "CAMEL",
+      "name": "Commercial AMEL (CAMEL)",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "aatdFtd",
+          "label": "AATD/FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "solo",
+          "label": "Solo"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageOral",
+          "label": "Stage Oral"
+        },
+        {
+          "key": "stageFlight",
+          "label": "Stage Flight"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-DL",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DXC",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-DXCN",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "6-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "7-STF",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "8-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "9-TD",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "10-DL",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "11-DL",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "12-STO",
+          "equipment": "Ground",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "13-STF",
+          "equipment": "M.E. AIRPLANE",
+          "times": {}
+        }
+      ]
+    },
+    {
+      "id": "cfi",
+      "shortCode": "CFI",
+      "name": "Certified Flight Instructor (CFI)",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "aatdFtd",
+          "label": "AATD/FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "solo",
+          "label": "Solo"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageOral",
+          "label": "Stage Oral"
+        },
+        {
+          "key": "stageFlight",
+          "label": "Stage Flight"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": []
+    },
+    {
+      "id": "cfii",
+      "shortCode": "CFI-I",
+      "name": "Certified Flight Instructor — Instrument (CFI-I)",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBrief",
+          "label": "Ground Brief"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "aatdFtd",
+          "label": "AATD/FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "solo",
+          "label": "Solo"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageOral",
+          "label": "Stage Oral"
+        },
+        {
+          "key": "stageFlight",
+          "label": "Stage Flight"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": []
     }
   ]
 }

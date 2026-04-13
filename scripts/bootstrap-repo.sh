@@ -8,7 +8,7 @@ if [[ -d .git ]]; then
 fi
 git init -b main
 git add .gitignore README.md index.html app.js styles.css pdf-export.js courses.json Master.pdf \
-  package.json package-lock.json fill_arf_pdf.py scripts/
+  tco/*.pdf package.json package-lock.json fill_arf_pdf.py scripts/
 git commit -m "Initial commit: ARF scheduler for GitHub Pages"
 echo "Done. Next: create a GitHub repo, then:"
 echo "  git remote add origin https://github.com/<you>/<repo>.git"

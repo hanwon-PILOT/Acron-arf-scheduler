@@ -824,6 +824,8 @@ def fill_pdf(template: Path, data: dict, output: Path) -> None:
         course_code = str(row.get("courseShortCode") or row.get("courseCode") or "").strip()
         if course_code in ("CASEL1", "CASEL2"):
             course_code = "CASEL"
+        if course_code == "CFI":
+            course_code = "CFI-A"
         if course_code:
             set_combo_all(m, course_field_name(layout, idx), course_code)
 
