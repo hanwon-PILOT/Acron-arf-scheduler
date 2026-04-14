@@ -206,7 +206,7 @@ function courseShortCodeForPdf(shortCode) {
 
 // Optional: increment a private download counter (server-side).
 // To enable, deploy the Worker and set this to your Worker base URL.
-const DOWNLOAD_COUNTER_BASE_URL = "";
+const DOWNLOAD_COUNTER_BASE_URL = "https://arf-download-counter.happylot242.workers.dev";
 
 async function trackPdfDownload() {
   const base = String(DOWNLOAD_COUNTER_BASE_URL || "").trim().replace(/\/+$/, "");
