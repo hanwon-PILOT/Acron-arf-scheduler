@@ -656,10 +656,10 @@ function detectFieldSpec(form) {
   }
 }
 
-/** Master.pdf lists CASEL once; app distinguishes CASEL.1 / CASEL.2 in the UI only. CFI-A for airplane CFI. */
+/** Master.pdf lists CASEL once; app distinguishes CASEL.1 / CASEL.2 / CASEL.3 in the UI only. CFI-A for airplane CFI. */
 function normalizeCourseCodeForPdf(code) {
   const s = String(code || "").trim();
-  if (s === "CASEL1" || s === "CASEL2") return "CASEL";
+  if (s === "CASEL1" || s === "CASEL2" || s === "CASEL3") return "CASEL";
   if (s === "CFI") return "CFI-A";
   return s;
 }
@@ -1210,6 +1210,10 @@ export function lessonTextForPdfField(code) {
     return `${num}TD`;
   }
 
+  if (/-DAA\s*$/i.test(raw) && num) {
+    return `${num}DAA`;
+  }
+
   return raw.replace(/-/g, "");
 }
 
@@ -1227,6 +1231,7 @@ export function typeFromLessonCode(code) {
 
   const isSim =
     /-TD\s*$/i.test(raw) ||
+    /-DAA\s*$/i.test(raw) ||
     /AA\s*TD|AATD|TD\s*\/\s*FTD|\bDFT\b/i.test(raw);
   if (isSim) return "DSIM";
 

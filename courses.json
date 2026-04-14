@@ -1,7 +1,7 @@
 {
   "version": 1,
   "meta": {
-    "noteKo": "PPC·IRA·CASEL.1·CASEL.2 레슨 코드는 제공된 TCO 목록과 일치합니다. PDF 코스 드롭다운에 CASEL1/CASEL2가 없으면 앱이 옵션을 추가합니다."
+    "noteKo": "PPC·IRA·CASEL.1·CASEL.2·CASEL.3 레슨 코드는 제공된 TCO 목록과 일치합니다. PDF 코스 드롭다운에 CASEL1/2/3가 없으면 앱이 옵션을 추가합니다."
   },
   "courses": [
     {
@@ -1257,6 +1257,102 @@
           "code": "58-STF",
           "equipment": "S.E. AIRPLANE",
           "times": {}
+        }
+      ]
+    },
+    {
+      "id": "casel3",
+      "shortCode": "CASEL3",
+      "name": "Commercial ASEL — CASEL 3 (61 Commercial Pilot ASEL Add-On)",
+      "timeColumns": [
+        {
+          "key": "scheduleTime",
+          "label": "Schedule Time"
+        },
+        {
+          "key": "groundBriefOral",
+          "label": "Ground Brief/ Oral"
+        },
+        {
+          "key": "preBrief",
+          "label": "Pre Brief"
+        },
+        {
+          "key": "postBrief",
+          "label": "Post Brief"
+        },
+        {
+          "key": "ftd",
+          "label": "FTD"
+        },
+        {
+          "key": "aircraft",
+          "label": "Aircraft"
+        },
+        {
+          "key": "dual",
+          "label": "Dual"
+        },
+        {
+          "key": "soloPic",
+          "label": "Solo/PIC"
+        },
+        {
+          "key": "xc",
+          "label": "X-C"
+        },
+        {
+          "key": "night",
+          "label": "Night"
+        },
+        {
+          "key": "instrument",
+          "label": "Instrument"
+        },
+        {
+          "key": "stageCheck",
+          "label": "Stage Check"
+        }
+      ],
+      "equipmentKey": "equipment",
+      "lessons": [
+        {
+          "stage": 1,
+          "code": "1-DAA",
+          "equipment": "AATD/FTD",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "2-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "3-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "4-DL",
+          "equipment": "S.E. AIRPLANE",
+          "times": {}
+        },
+        {
+          "stage": 1,
+          "code": "5-EOC-STO",
+          "equipment": "Ground",
+          "times": {},
+          "label": "5 — EOC STO"
+        },
+        {
+          "stage": 1,
+          "code": "6-EOC-STF",
+          "equipment": "S.E. AIRPLANE",
+          "times": {},
+          "label": "6 — EOC STF"
         }
       ]
     },
