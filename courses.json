@@ -1262,8 +1262,8 @@
     },
     {
       "id": "casel3",
-      "shortCode": "CASEL3",
-      "name": "Commercial ASEL — CASEL 3 (61 Commercial Pilot ASEL Add-On)",
+      "shortCode": "CASEL",
+      "name": "61 Commercial Pilot ASEL Add-On (CASEL 3)",
       "timeColumns": [
         {
           "key": "scheduleTime",
