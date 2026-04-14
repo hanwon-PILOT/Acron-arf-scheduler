@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <title>ARF PDF download counter (admin)</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        background: #0b1220;
+        color: #eaf0ff;
+      }
+      main {
+        max-width: 760px;
+        margin: 3rem auto;
+        padding: 1.25rem 1.25rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: 1.1rem;
+        margin: 0 0 1rem 0;
+      }
+      label {
+        display: block;
+        margin: 0.75rem 0 0.35rem 0;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        padding: 0.6rem 0.7rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.06);
+        color: #eaf0ff;
+      }
+      button {
+        margin-top: 0.9rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 10px;
+        border: 0;
+        background: #3b82f6;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .hint {
+        opacity: 0.85;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+      }
+      pre {
+        background: rgba(0, 0, 0, 0.25);
+        padding: 0.75rem;
+        border-radius: 10px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ARF PDF download counter (admin)</h1>
+
+      <label for="baseUrl">Worker base URL</label>
+      <input id="baseUrl" placeholder="https://arf-download-counter.<you>.workers.dev" />
+      <div class="hint">Example: <code>https://arf-download-counter.&lt;you&gt;.workers.dev</code></div>
+
+      <label for="token">Admin token (private)</label>
+      <input id="token" placeholder="paste ADMIN_TOKEN" />
+
+      <button id="refresh">Refresh</button>
+
+      <h2 style="margin: 1.2rem 0 0.5rem 0; font-size: 1rem">Result</h2>
+      <pre id="out">{ "ok": false, "note": "not loaded yet" }</pre>
+    </main>
+
+    <script>
+      const els = {
+        baseUrl: document.getElementById("baseUrl"),
+        token: document.getElementById("token"),
+        refresh: document.getElementById("refresh"),
+        out: document.getElementById("out"),
+      };
+
+      function setOut(obj) {
+        els.out.textContent = JSON.stringify(obj, null, 2);
+      }
+
+      async function load() {
+        const base = String(els.baseUrl.value || "").trim().replace(/\/+$/, "");
+        const token = String(els.token.value || "").trim();
+        if (!base) return setOut({ ok: false, error: "missing baseUrl" });
+        if (!token) return setOut({ ok: false, error: "missing token" });
+
+        els.refresh.disabled = true;
+        try {
+          const r = await fetch(`${base}/admin`, { headers: { "X-Admin-Token": token } });
+          const j = await r.json().catch(() => null);
+          setOut({ status: r.status, ...(j || {}) });
+        } catch (e) {
+          setOut({ ok: false, error: String(e && e.message ? e.message : e) });
+        } finally {
+          els.refresh.disabled = false;
+        }
+      }
+
+      els.refresh.addEventListener("click", load);
+    </script>
+  </body>
+</html>
+

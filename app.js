@@ -204,6 +204,25 @@ function courseShortCodeForPdf(shortCode) {
   return s;
 }
 
+// Optional: increment a private download counter (server-side).
+// To enable, deploy the Worker and set this to your Worker base URL.
+const DOWNLOAD_COUNTER_BASE_URL = "";
+
+async function trackPdfDownload() {
+  const base = String(DOWNLOAD_COUNTER_BASE_URL || "").trim().replace(/\/+$/, "");
+  if (!base) return;
+  try {
+    await fetch(`${base}/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ app: "arf-scheduler", event: "download_pdf" }),
+      keepalive: true,
+    });
+  } catch {
+    // Never block the PDF download flow on analytics.
+  }
+}
+
 function getCourseById(id) {
   return catalog.courses.find((c) => c.id === id) || null;
 }
@@ -1354,6 +1373,7 @@ function init() {
 
   document.getElementById("downloadArfPdf").addEventListener("click", async () => {
     try {
+      trackPdfDownload();
       const bytes = await resolveArfTemplateBytes();
       if (!bytes) {
         alert("Could not load Master.pdf. Put Master.pdf in the same folder as this page and open the app over HTTP (local server).");

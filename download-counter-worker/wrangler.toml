@@ -1,0 +1,11 @@
+name = "arf-download-counter"
+main = "src/index.js"
+compatibility_date = "2026-04-01"
+
+[[kv_namespaces]]
+binding = "COUNTERS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+APP_ID = "arf-scheduler"
+

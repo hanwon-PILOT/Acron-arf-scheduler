@@ -40,6 +40,60 @@ After you deploy to **GitHub Pages**, bump the `?v=` query on `styles.css` and `
 
 5. After a minute or two, open the site URL shown on the Pages settings page in Safari. `app.js` loads `Master.pdf` and `courses.json` using paths relative to the script, so it works for both `https://<user>.github.io/<repo>/` and root sites.
 
+## Private PDF download counter (admin-only)
+
+GitHub Pages is static, so the only reliable way to get real-time download counts is to send a small “track” request to your own private backend.
+This repo includes a Cloudflare Worker that counts “Download filled ARF PDF” clicks.
+
+### Deploy the Worker (Cloudflare)
+
+1. Install and login:
+
+```bash
+cd download-counter-worker
+npm install
+npx wrangler login
+```
+
+2. Create KV and update `wrangler.toml`:
+
+```bash
+npx wrangler kv namespace create COUNTERS
+```
+
+Copy the KV namespace id into `download-counter-worker/wrangler.toml` under `kv_namespaces.id`.
+
+3. Set a private admin token (do NOT commit it):
+
+```bash
+npx wrangler secret put ADMIN_TOKEN
+```
+
+4. Deploy:
+
+```bash
+npm run deploy
+```
+
+Wrangler prints your Worker URL (example: `https://arf-download-counter.<you>.workers.dev`).
+
+### Enable tracking in the web app
+
+In `app.js`, set:
+
+- `DOWNLOAD_COUNTER_BASE_URL = "https://arf-download-counter.<you>.workers.dev"`
+
+Then commit + push so GitHub Pages updates.
+
+### View counts (admin-only)
+
+Open `admin-downloads.html` from your GitHub Pages site, paste:
+
+- Worker base URL
+- Admin token (your secret)
+
+It calls `GET /admin` with `X-Admin-Token`. Without the token it returns 401.
+
 ## Optional CLI
 
 `fill_arf_pdf.py` fills the same template from JSON; not required for the web app.
