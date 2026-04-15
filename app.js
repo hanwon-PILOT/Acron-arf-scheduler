@@ -48,6 +48,9 @@ const DEFAULT_CADET = ["PTO", "GND", "RTP", "FAA", "STG", "ACT"];
 const DEFAULT_FLIGHT_TYPES = ["D", "DSIM", "DSolo", "Solo", "SoloXC", "Ground"];
 const DEFAULT_EQUIPMENT = ["GW", "172 P", "172 SP", "AATD 15", "AATD17", "RBSIM1", "PA28", "AATD18", "R14193", "PA44", "AATDM-1"];
 
+/** Student name modal: default aircraft for D-type lessons (row Equipment uses merged list below). */
+const STUDENT_AIRCRAFT_CHOICES = ["C172S", "PA28", "PA44", "SR20"];
+
 const DAY_NIGHT_OPTIONS = ["Day", "Night", "Both"];
 
 /** @type {Uint8Array | null} */
@@ -830,6 +833,19 @@ function optionsFromList(list, selected, emptyLabel = "—") {
   return parts.join("");
 }
 
+/** Equipment column: global list + student aircraft labels so auto-filled values always appear. */
+function equipmentOptionsForScheduleRow() {
+  const seen = new Set();
+  const out = [];
+  for (const x of [...STUDENT_AIRCRAFT_CHOICES, ...equipmentOptions]) {
+    if (!seen.has(x)) {
+      seen.add(x);
+      out.push(x);
+    }
+  }
+  return out;
+}
+
 function matchEquipmentFromLesson(raw) {
   const t = String(raw || "")
     .trim()
@@ -849,7 +865,7 @@ function studentDefaultAircraftForName(name) {
   if (!n) return "";
   const v = studentAircraftMap[n];
   if (!v) return "";
-  return equipmentOptions.includes(v) ? v : "";
+  return STUDENT_AIRCRAFT_CHOICES.includes(v) ? v : "";
 }
 
 function applyDualEquipmentForRow(idx) {
@@ -862,6 +878,17 @@ function applyDualEquipmentForRow(idx) {
 
 function syncAllDualEquipmentFromStudentDefaults() {
   state.rows.forEach((_, i) => applyDualEquipmentForRow(i));
+}
+
+function moveScheduleRow(from, to) {
+  const f = Number(from);
+  const t = Number(to);
+  if (!Number.isFinite(f) || !Number.isFinite(t) || f === t) return;
+  if (f < 0 || t < 0 || f >= state.rows.length || t >= state.rows.length) return;
+  const next = [...state.rows];
+  const [item] = next.splice(f, 1);
+  next.splice(t, 0, item);
+  state.rows = next;
 }
 
 function studentOptionsHtml(selected) {
@@ -898,8 +925,13 @@ function renderRows() {
   state.rows.forEach((row, idx) => {
     const wrap = document.createElement("div");
     wrap.className = "schedule-row";
+    wrap.dataset.rowIndex = String(idx);
+    const equipList = equipmentOptionsForScheduleRow();
     wrap.innerHTML = `
-      <h3>Row ${idx + 1}</h3>
+      <div class="schedule-row-head">
+        <span class="schedule-drag-handle" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
+        <h3>Row ${idx + 1}</h3>
+      </div>
       <div class="row-grid">
         <div>
           <label>Student</label>
@@ -931,7 +963,7 @@ function renderRows() {
         </div>
         <div>
           <label>Equipment</label>
-          <select class="sel-equip" data-i="${idx}">${optionsFromList(equipmentOptions, row.equipment)}</select>
+          <select class="sel-equip" data-i="${idx}">${optionsFromList(equipList, row.equipment)}</select>
         </div>
         <div>
           <label>Date of Last Lesson</label>
@@ -944,6 +976,38 @@ function renderRows() {
       </div>
     `;
     els.scheduleRows.appendChild(wrap);
+
+    const dragHandle = wrap.querySelector(".schedule-drag-handle");
+    if (dragHandle) {
+      dragHandle.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", String(idx));
+        e.dataTransfer.effectAllowed = "move";
+        wrap.classList.add("schedule-row--dragging");
+      });
+      dragHandle.addEventListener("dragend", () => {
+        wrap.classList.remove("schedule-row--dragging");
+        document.querySelectorAll(".schedule-row-drag-over").forEach((el) => el.classList.remove("schedule-row-drag-over"));
+      });
+    }
+    wrap.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    });
+    wrap.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      wrap.classList.add("schedule-row-drag-over");
+    });
+    wrap.addEventListener("dragleave", (e) => {
+      if (!wrap.contains(e.relatedTarget)) wrap.classList.remove("schedule-row-drag-over");
+    });
+    wrap.addEventListener("drop", (e) => {
+      e.preventDefault();
+      wrap.classList.remove("schedule-row-drag-over");
+      const from = Number(e.dataTransfer.getData("text/plain"));
+      moveScheduleRow(from, idx);
+      renderRows();
+      persistSoon();
+    });
 
     wrap.querySelector(".sel-student").addEventListener("change", (e) => {
       state.rows[idx].student = e.target.value;
@@ -1071,7 +1135,7 @@ function renderNameList() {
     optAcNone.value = "";
     optAcNone.textContent = "— Aircraft —";
     selAc.appendChild(optAcNone);
-    for (const eq of equipmentOptions) {
+    for (const eq of STUDENT_AIRCRAFT_CHOICES) {
       const o = document.createElement("option");
       o.value = eq;
       o.textContent = eq;

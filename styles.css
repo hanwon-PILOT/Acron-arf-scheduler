@@ -176,10 +176,42 @@ button {
   background: #fafbf9;
 }
 
-.schedule-row h3 {
-  margin: 0 0 0.5rem;
+.schedule-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.schedule-row-head h3 {
+  margin: 0;
+  flex: 1;
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+.schedule-drag-handle {
+  cursor: grab;
+  user-select: none;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.15rem 0.3rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.schedule-drag-handle:active {
+  cursor: grabbing;
+}
+
+.schedule-row--dragging {
+  opacity: 0.65;
+}
+
+.schedule-row-drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
 }
 
 .row-grid {
