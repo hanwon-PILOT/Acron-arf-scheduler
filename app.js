@@ -58,6 +58,14 @@ function lessonTypeUsesStudentAircraft(typeStr) {
   return LESSON_TYPES_USE_STUDENT_AIRCRAFT.has(String(typeStr || "").trim());
 }
 
+function applyEquipmentDefaultsForType(idx, typeStr) {
+  const t = String(typeStr || "").trim();
+  if (!t) return;
+  if (t === "Ground") {
+    state.rows[idx].equipment = "GW";
+  }
+}
+
 const DAY_NIGHT_OPTIONS = ["Day", "Night", "Both"];
 
 /** @type {Uint8Array | null} */
@@ -1111,6 +1119,12 @@ function renderRows() {
       const L = findLesson(state.rows[idx].courseId, code);
       const inferred = typeFromLessonCode(code);
       state.rows[idx].type = inferred || "";
+      if (inferred === "Ground") {
+        applyEquipmentDefaultsForType(idx, inferred);
+        renderRows();
+        persistSoon();
+        return;
+      }
       if (lessonTypeUsesStudentAircraft(inferred)) {
         const pref = studentDefaultAircraftForName(String(state.rows[idx].student || ""));
         if (pref) {
@@ -1139,6 +1153,12 @@ function renderRows() {
     wrap.querySelector(".sel-type").addEventListener("change", (e) => {
       state.rows[idx].type = e.target.value;
       const t = e.target.value;
+      if (String(t || "").trim() === "Ground") {
+        applyEquipmentDefaultsForType(idx, t);
+        renderRows();
+        persistSoon();
+        return;
+      }
       if (lessonTypeUsesStudentAircraft(t)) {
         const pref = studentDefaultAircraftForName(String(state.rows[idx].student || ""));
         if (pref) state.rows[idx].equipment = pref;
