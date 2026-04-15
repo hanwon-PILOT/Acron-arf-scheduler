@@ -23,6 +23,7 @@ const STORAGE_STUDENTS_LEGACY = "acron_arf_v1_students";
 const STORAGE_STUDENT_COURSE_LEGACY = "acron_arf_v1_student_course";
 const STORAGE_STUDENTS_BY_INSTRUCTOR = "acron_arf_v3_students_by_instructor";
 const STORAGE_STUDENT_COURSE_BY_INSTRUCTOR = "acron_arf_v3_student_course_by_instructor";
+const STORAGE_STUDENT_AIRCRAFT_BY_INSTRUCTOR = "acron_arf_v3_student_aircraft_by_instructor";
 const STORAGE_LEGACY_STUDENTS_MIGRATED = "acron_arf_v3_students_migrated_v1";
 /** Bucket when no instructor profile is committed (empty select + name not blurred to a profile). */
 const STUDENTS_UNASSIGNED_KEY = "__unassigned__";
@@ -120,6 +121,20 @@ function saveCourseMapsByInstructor(map) {
   localStorage.setItem(STORAGE_STUDENT_COURSE_BY_INSTRUCTOR, JSON.stringify(map));
 }
 
+function loadAircraftMapsByInstructor() {
+  try {
+    const raw = localStorage.getItem(STORAGE_STUDENT_AIRCRAFT_BY_INSTRUCTOR);
+    const o = raw ? JSON.parse(raw) : {};
+    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveAircraftMapsByInstructor(map) {
+  localStorage.setItem(STORAGE_STUDENT_AIRCRAFT_BY_INSTRUCTOR, JSON.stringify(map));
+}
+
 /** Copy legacy global student list + default-course map into the active instructor bucket once. */
 function migrateLegacySharedStudents() {
   try {
@@ -173,6 +188,12 @@ function loadCourseMapForKey(bucketKey) {
   return m && typeof m === "object" && !Array.isArray(m) ? { ...m } : {};
 }
 
+function loadAircraftMapForKey(bucketKey) {
+  const amap = loadAircraftMapsByInstructor();
+  const m = amap[bucketKey];
+  return m && typeof m === "object" && !Array.isArray(m) ? { ...m } : {};
+}
+
 function persistStudentsAndCourses(bucketKey) {
   const smap = loadStudentsMap();
   smap[bucketKey] = [...students];
@@ -180,6 +201,9 @@ function persistStudentsAndCourses(bucketKey) {
   const cmap = loadCourseMapsByInstructor();
   cmap[bucketKey] = { ...studentCourseMap };
   saveCourseMapsByInstructor(cmap);
+  const amap = loadAircraftMapsByInstructor();
+  amap[bucketKey] = { ...studentAircraftMap };
+  saveAircraftMapsByInstructor(amap);
 }
 
 function deleteStudentsDataForInstructor(name) {
@@ -191,10 +215,16 @@ function deleteStudentsDataForInstructor(name) {
   const cmap = loadCourseMapsByInstructor();
   delete cmap[k];
   saveCourseMapsByInstructor(cmap);
+  const amap = loadAircraftMapsByInstructor();
+  delete amap[k];
+  saveAircraftMapsByInstructor(amap);
 }
 
 /** @type {Record<string, string>} student display name → course id (current instructor bucket) */
 let studentCourseMap = {};
+
+/** @type {Record<string, string>} student display name → equipment label (current instructor bucket), used when lesson Type is D */
+let studentAircraftMap = {};
 
 /** Master.pdf Course dropdown uses CASEL for CASEL1/2/3 syllabi; CFI-A for airplane CFI. */
 function courseShortCodeForPdf(shortCode) {
@@ -503,6 +533,7 @@ migrateLegacySharedStudents();
 const _initialStudentBucket = profileSaveKey.trim() || STUDENTS_UNASSIGNED_KEY;
 let students = loadStudentsListForKey(_initialStudentBucket);
 studentCourseMap = loadCourseMapForKey(_initialStudentBucket);
+studentAircraftMap = loadAircraftMapForKey(_initialStudentBucket);
 
 function studentBucketKey() {
   return profileSaveKey.trim() || STUDENTS_UNASSIGNED_KEY;
@@ -645,6 +676,7 @@ function applyStateToDom() {
     cb.checked = !!state.aircraft[k];
   });
   syncQualificationCheckboxesFromState();
+  syncAllDualEquipmentFromStudentDefaults();
   renderRows();
 }
 
@@ -675,6 +707,7 @@ function bindHeader() {
     const nextBucket = studentBucketKey();
     students = loadStudentsListForKey(nextBucket);
     studentCourseMap = loadCourseMapForKey(nextBucket);
+    studentAircraftMap = loadAircraftMapForKey(nextBucket);
     applyStateToDom();
     rememberInstructorName(state.instructorName);
     persistSoon();
@@ -701,7 +734,9 @@ function bindHeader() {
     if (nextBucket !== prevBucket) {
       students = loadStudentsListForKey(nextBucket);
       studentCourseMap = loadCourseMapForKey(nextBucket);
+      studentAircraftMap = loadAircraftMapForKey(nextBucket);
       if (els.nameModal.classList.contains("open")) renderNameList();
+      syncAllDualEquipmentFromStudentDefaults();
       renderRows();
     }
     const k = profileSaveKey;
@@ -808,6 +843,27 @@ function matchEquipmentFromLesson(raw) {
   return "";
 }
 
+/** Per-student default equipment label (Equipment list) when lesson Type is D. */
+function studentDefaultAircraftForName(name) {
+  const n = String(name || "").trim();
+  if (!n) return "";
+  const v = studentAircraftMap[n];
+  if (!v) return "";
+  return equipmentOptions.includes(v) ? v : "";
+}
+
+function applyDualEquipmentForRow(idx) {
+  const r = state.rows[idx];
+  if (!r || !r.lessonCode) return;
+  if (typeFromLessonCode(r.lessonCode) !== "D") return;
+  const pref = studentDefaultAircraftForName(String(r.student || ""));
+  if (pref) r.equipment = pref;
+}
+
+function syncAllDualEquipmentFromStudentDefaults() {
+  state.rows.forEach((_, i) => applyDualEquipmentForRow(i));
+}
+
 function studentOptionsHtml(selected) {
   return optionsFromList(students, selected, "—");
 }
@@ -897,8 +953,9 @@ function renderRows() {
         state.rows[idx].lessonCode = "";
         state.rows[idx].equipment = "";
         state.rows[idx].type = "";
-        renderRows();
       }
+      applyDualEquipmentForRow(idx);
+      renderRows();
       persistSoon();
     });
     wrap.querySelector(".sel-cadet").addEventListener("change", (e) => {
@@ -920,13 +977,25 @@ function renderRows() {
       persistSoon();
     });
     wrap.querySelector(".sel-lesson").addEventListener("change", (e) => {
-      state.rows[idx].lessonCode = e.target.value;
-      const L = findLesson(state.rows[idx].courseId, e.target.value);
-      if (L) {
-        const matched = matchEquipmentFromLesson(L.equipment);
-        state.rows[idx].equipment = matched;
+      const code = e.target.value;
+      state.rows[idx].lessonCode = code;
+      const L = findLesson(state.rows[idx].courseId, code);
+      const inferred = typeFromLessonCode(code);
+      state.rows[idx].type = inferred || "";
+      if (inferred === "D") {
+        const pref = studentDefaultAircraftForName(String(state.rows[idx].student || ""));
+        if (pref) {
+          state.rows[idx].equipment = pref;
+        } else if (L) {
+          state.rows[idx].equipment = matchEquipmentFromLesson(L.equipment);
+        } else {
+          state.rows[idx].equipment = "";
+        }
+      } else if (L) {
+        state.rows[idx].equipment = matchEquipmentFromLesson(L.equipment);
+      } else {
+        state.rows[idx].equipment = "";
       }
-      state.rows[idx].type = typeFromLessonCode(e.target.value);
       renderRows();
       persistSoon();
     });
@@ -994,6 +1063,31 @@ function renderNameList() {
       persistSoon();
     });
 
+    const mappedAc = studentAircraftMap[name];
+    const selAc = document.createElement("select");
+    selAc.className = "sel-student-default-aircraft";
+    selAc.setAttribute("aria-label", `Default aircraft for ${name}`);
+    const optAcNone = document.createElement("option");
+    optAcNone.value = "";
+    optAcNone.textContent = "— Aircraft —";
+    selAc.appendChild(optAcNone);
+    for (const eq of equipmentOptions) {
+      const o = document.createElement("option");
+      o.value = eq;
+      o.textContent = eq;
+      if (mappedAc === eq) o.selected = true;
+      selAc.appendChild(o);
+    }
+    selAc.addEventListener("change", () => {
+      const v = selAc.value.trim();
+      if (v) studentAircraftMap[name] = v;
+      else delete studentAircraftMap[name];
+      persistStudentsAndCourses(studentBucketKey());
+      syncAllDualEquipmentFromStudentDefaults();
+      renderRows();
+      persistSoon();
+    });
+
     const del = document.createElement("button");
     del.type = "button";
     del.className = "btn-danger";
@@ -1002,6 +1096,7 @@ function renderNameList() {
       const removed = students[i];
       students = students.filter((_, j) => j !== i);
       delete studentCourseMap[removed];
+      delete studentAircraftMap[removed];
       persistStudentsAndCourses(studentBucketKey());
       renderNameList();
       renderRows();
@@ -1010,6 +1105,7 @@ function renderNameList() {
 
     li.appendChild(span);
     li.appendChild(sel);
+    li.appendChild(selAc);
     li.appendChild(del);
     els.nameList.appendChild(li);
   });
@@ -1122,6 +1218,7 @@ function renderInstructorProfileList() {
         profileSaveKey = "";
         students = loadStudentsListForKey(studentBucketKey());
         studentCourseMap = loadCourseMapForKey(studentBucketKey());
+        studentAircraftMap = loadAircraftMapForKey(studentBucketKey());
         applyStateToDom();
       }
       refreshInstructorProfileSelect();

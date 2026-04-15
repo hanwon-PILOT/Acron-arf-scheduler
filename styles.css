@@ -271,6 +271,14 @@ button {
   padding: 0.25rem 0.35rem;
 }
 
+.name-list .sel-student-default-aircraft {
+  flex: 1 1 6rem;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.35rem;
+}
+
 .tco-download-list {
   margin: 0.65rem 0 0;
   padding-left: 1.25rem;
