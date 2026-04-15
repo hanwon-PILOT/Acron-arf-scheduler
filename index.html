@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <title>Acron Aviation ARF Auto Filling Tool</title>
     <!-- Bump ?v= when shipping so Safari/GitHub Pages drop stale JS/CSS (must match app.js entry). -->
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
   <body>
     <header class="app-header">
@@ -19,7 +19,7 @@
 
     <main>
       <section class="card">
-        <h2>Instructor &amp; date</h2>
+        <h2>Instructor</h2>
         <div class="grid-2">
           <div>
             <label for="instructorProfileSelect">Instructor</label>
@@ -37,14 +37,6 @@
           <div>
             <label for="instructorName">Instructor name (editable)</label>
             <input type="text" id="instructorName" name="instructorName" autocomplete="name" />
-          </div>
-          <div>
-            <label for="requestDate">Date</label>
-            <input type="date" id="requestDate" />
-          </div>
-          <div>
-            <label for="requestDay">Day</label>
-            <input type="text" id="requestDay" placeholder="Auto from date (SUN–SAT)" autocomplete="off" />
           </div>
         </div>
 
@@ -90,6 +82,20 @@
           <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
           <button type="button" class="btn-secondary" id="openFlightTypeListEditor">Type list</button>
           <button type="button" class="btn-secondary" id="openEquipmentListEditor">Equipment list</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Request date &amp; day</h2>
+        <div class="grid-2">
+          <div>
+            <label for="requestDate">Date</label>
+            <input type="date" id="requestDate" />
+          </div>
+          <div>
+            <label for="requestDay">Day</label>
+            <input type="text" id="requestDay" placeholder="Auto from date (SUN–SAT)" autocomplete="off" />
+          </div>
         </div>
       </section>
 
@@ -210,6 +216,6 @@
       </div>
     </div>
 
-    <script type="module" src="app.js?v=10"></script>
+    <script type="module" src="app.js?v=11"></script>
   </body>
 </html>
