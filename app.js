@@ -1066,7 +1066,20 @@ function renderRows() {
       persistSoon();
     });
     wrap.querySelector(".sel-cadet").addEventListener("change", (e) => {
-      state.rows[idx].cadetStatus = e.target.value;
+      const v = String(e.target.value || "").trim();
+      state.rows[idx].cadetStatus = v;
+      if (v === "PTO" || v === "RTP" || v === "GND") {
+        // If cadet status is a non-flying state, clear the rest of the row.
+        state.rows[idx].courseId = "";
+        state.rows[idx].lessonCode = "";
+        state.rows[idx].block = "";
+        state.rows[idx].type = "";
+        state.rows[idx].equipment = "";
+        state.rows[idx].remarks = "";
+        state.rows[idx].dayNight = "";
+        state.rows[idx].lastLessonDate = "";
+      }
+      renderRows();
       persistSoon();
     });
     wrap.querySelector(".sel-course").addEventListener("change", (e) => {
@@ -1087,6 +1100,14 @@ function renderRows() {
       const code = e.target.value;
       state.rows[idx].lessonCode = code;
       state.rows[idx].block = "";
+
+      // Auto cadet status: STO/STF → STG, otherwise ACT.
+      if (/-STO\b/i.test(code) || /-STF\b/i.test(code)) {
+        state.rows[idx].cadetStatus = "STG";
+      } else if (code) {
+        state.rows[idx].cadetStatus = "ACT";
+      }
+
       const L = findLesson(state.rows[idx].courseId, code);
       const inferred = typeFromLessonCode(code);
       state.rows[idx].type = inferred || "";
