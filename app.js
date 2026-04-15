@@ -51,6 +51,13 @@ const DEFAULT_EQUIPMENT = ["GW", "172 P", "172 SP", "AATD 15", "AATD17", "RBSIM1
 /** Student name modal: default aircraft for D-type lessons (row Equipment uses merged list below). */
 const STUDENT_AIRCRAFT_CHOICES = ["C172S", "PA28", "PA44", "SR20"];
 
+/** Lesson Type values where row Equipment prefers the student’s saved aircraft. */
+const LESSON_TYPES_USE_STUDENT_AIRCRAFT = new Set(["D", "DSolo", "Solo", "SoloXC"]);
+
+function lessonTypeUsesStudentAircraft(typeStr) {
+  return LESSON_TYPES_USE_STUDENT_AIRCRAFT.has(String(typeStr || "").trim());
+}
+
 const DAY_NIGHT_OPTIONS = ["Day", "Night", "Both"];
 
 /** @type {Uint8Array | null} */
@@ -894,7 +901,7 @@ function matchEquipmentFromLesson(raw) {
   return "";
 }
 
-/** Per-student default equipment label (Equipment list) when lesson Type is D. */
+/** Per-student default equipment label when lesson Type is D, DSolo, Solo, or SoloXC. */
 function studentDefaultAircraftForName(name) {
   const n = String(name || "").trim();
   if (!n) return "";
@@ -906,7 +913,8 @@ function studentDefaultAircraftForName(name) {
 function applyDualEquipmentForRow(idx) {
   const r = state.rows[idx];
   if (!r || !r.lessonCode) return;
-  if (typeFromLessonCode(r.lessonCode) !== "D") return;
+  const inferred = typeFromLessonCode(r.lessonCode) || "";
+  if (!lessonTypeUsesStudentAircraft(inferred)) return;
   const pref = studentDefaultAircraftForName(String(r.student || ""));
   if (pref) r.equipment = pref;
 }
@@ -1082,7 +1090,7 @@ function renderRows() {
       const L = findLesson(state.rows[idx].courseId, code);
       const inferred = typeFromLessonCode(code);
       state.rows[idx].type = inferred || "";
-      if (inferred === "D") {
+      if (lessonTypeUsesStudentAircraft(inferred)) {
         const pref = studentDefaultAircraftForName(String(state.rows[idx].student || ""));
         if (pref) {
           state.rows[idx].equipment = pref;
@@ -1109,6 +1117,11 @@ function renderRows() {
     });
     wrap.querySelector(".sel-type").addEventListener("change", (e) => {
       state.rows[idx].type = e.target.value;
+      const t = e.target.value;
+      if (lessonTypeUsesStudentAircraft(t)) {
+        const pref = studentDefaultAircraftForName(String(state.rows[idx].student || ""));
+        if (pref) state.rows[idx].equipment = pref;
+      }
       persistSoon();
     });
     wrap.querySelector(".sel-equip").addEventListener("change", (e) => {
