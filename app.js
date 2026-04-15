@@ -84,6 +84,13 @@ function applyEquipmentDefaultsForType(idx, typeStr) {
   return false;
 }
 
+function isNightLessonCode(code) {
+  const raw = String(code || "").trim().toUpperCase();
+  if (!raw) return false;
+  // DLN, DXCN, SLN, SXCN (some catalogs use SXC / SXCN)
+  return /-DLN\b/.test(raw) || /-DXCN\b/.test(raw) || /-SLN\b/.test(raw) || /-SXCN\b/.test(raw) || /-SXC\b/.test(raw);
+}
+
 const DAY_NIGHT_OPTIONS = ["Day", "Night", "Both"];
 
 /** @type {Uint8Array | null} */
@@ -1126,6 +1133,10 @@ function renderRows() {
       const code = e.target.value;
       state.rows[idx].lessonCode = code;
       state.rows[idx].block = "";
+
+      if (code) {
+        state.rows[idx].dayNight = isNightLessonCode(code) ? "Night" : "Day";
+      }
 
       // Auto cadet status: STO/STF → STG, otherwise ACT.
       if (/-STO\b/i.test(code) || /-STF\b/i.test(code)) {
