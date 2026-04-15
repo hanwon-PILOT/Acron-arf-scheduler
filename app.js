@@ -1078,6 +1078,7 @@ function renderRows() {
     wrap.querySelector(".sel-lesson").addEventListener("change", (e) => {
       const code = e.target.value;
       state.rows[idx].lessonCode = code;
+      state.rows[idx].block = "";
       const L = findLesson(state.rows[idx].courseId, code);
       const inferred = typeFromLessonCode(code);
       state.rows[idx].type = inferred || "";
