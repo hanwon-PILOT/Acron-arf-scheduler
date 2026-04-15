@@ -478,7 +478,8 @@
           "stage": 2,
           "code": "19-STF",
           "equipment": "S.E. AIRPLANE",
-          "times": {}
+          "times": {},
+          "typeOverride": "DSIM"
         },
         {
           "stage": 2,
