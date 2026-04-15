@@ -74,6 +74,32 @@ function isoToWeekdayShort(iso) {
   return days[dt.getUTCDay()];
 }
 
+/** Instructor & date (request) → default "Date of Last Lesson" = two calendar days earlier (YYYY-MM-DD). */
+function defaultLastLessonDateFromRequestDate(requestIso) {
+  if (!requestIso || !/^\d{4}-\d{2}-\d{2}$/.test(String(requestIso).trim())) return "";
+  const [y, m, d] = String(requestIso).trim().split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() - 2);
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+
+/** Fill last-lesson date on rows that are still empty (e.g. after load). */
+function applyLastLessonDefaultWhereEmpty() {
+  const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
+  if (!dl) return false;
+  let changed = false;
+  for (const r of state.rows) {
+    if (!String(r.lastLessonDate || "").trim()) {
+      r.lastLessonDate = dl;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
 function loadStringList(key, defaults) {
   try {
     const raw = localStorage.getItem(key);
@@ -674,6 +700,8 @@ function applyStateToDom() {
     }
   }
 
+  applyLastLessonDefaultWhereEmpty();
+
   document.querySelectorAll("#aircraftChecks input[type=checkbox]").forEach((cb) => {
     const k = cb.getAttribute("data-ac");
     cb.checked = !!state.aircraft[k];
@@ -761,6 +789,13 @@ function bindHeader() {
       state.requestDay = auto;
       els.requestDay.value = auto;
     }
+    const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
+    if (dl) {
+      state.rows.forEach((r) => {
+        r.lastLessonDate = dl;
+      });
+    }
+    renderRows();
     persistSoon();
   });
   els.notesScheduling.addEventListener("input", () => {
@@ -1521,13 +1556,19 @@ function init() {
       alert("Maximum 10 rows.");
       return;
     }
-    state.rows.push(emptyRow());
+    const nr = emptyRow();
+    const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
+    if (dl) nr.lastLessonDate = dl;
+    state.rows.push(nr);
     renderRows();
     persistSoon();
   });
   document.getElementById("clearRows").addEventListener("click", () => {
     if (!confirm("Clear all schedule rows?")) return;
-    state.rows = [emptyRow()];
+    const row = emptyRow();
+    const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
+    if (dl) row.lastLessonDate = dl;
+    state.rows = [row];
     renderRows();
     persistSoon();
   });
