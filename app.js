@@ -87,8 +87,8 @@ function applyEquipmentDefaultsForType(idx, typeStr) {
 function isNightLessonCode(code) {
   const raw = String(code || "").trim().toUpperCase();
   if (!raw) return false;
-  // DLN, DXCN, SLN, SXCN (some catalogs use SXC / SXCN)
-  return /-DLN\b/.test(raw) || /-DXCN\b/.test(raw) || /-SLN\b/.test(raw) || /-SXCN\b/.test(raw) || /-SXC\b/.test(raw);
+  // DLN, DXCN, SLN, SXCN
+  return /-DLN\b/.test(raw) || /-DXCN\b/.test(raw) || /-SLN\b/.test(raw) || /-SXCN\b/.test(raw);
 }
 
 const DAY_NIGHT_OPTIONS = ["Day", "Night", "Both"];
