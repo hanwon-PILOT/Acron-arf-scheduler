@@ -69,12 +69,13 @@
     <main>
       <h1>ARF PDF download counter (admin)</h1>
 
-      <label for="baseUrl">Worker base URL</label>
-      <input id="baseUrl" placeholder="https://arf-download-counter.<you>.workers.dev" />
-      <div class="hint">Example: <code>https://arf-download-counter.&lt;you&gt;.workers.dev</code></div>
+      <p class="hint" style="margin-top: 0">
+        Counter endpoint (fixed, same as the main app):
+        <code id="baseDisplay"></code>
+      </p>
 
-      <label for="token">Admin token (private)</label>
-      <input id="token" placeholder="paste ADMIN_TOKEN" />
+      <label for="token">Admin token</label>
+      <input id="token" type="password" autocomplete="current-password" placeholder="ADMIN_TOKEN" />
 
       <button id="refresh">Refresh</button>
 
@@ -83,21 +84,25 @@
     </main>
 
     <script>
+      /** Same Worker as `DOWNLOAD_COUNTER_BASE_URL` in app.js — change both if you deploy a new URL. */
+      const WORKER_BASE_URL = "https://arf-download-counter.happylot242.workers.dev";
+
       const els = {
-        baseUrl: document.getElementById("baseUrl"),
+        baseDisplay: document.getElementById("baseDisplay"),
         token: document.getElementById("token"),
         refresh: document.getElementById("refresh"),
         out: document.getElementById("out"),
       };
+
+      els.baseDisplay.textContent = WORKER_BASE_URL;
 
       function setOut(obj) {
         els.out.textContent = JSON.stringify(obj, null, 2);
       }
 
       async function load() {
-        const base = String(els.baseUrl.value || "").trim().replace(/\/+$/, "");
+        const base = String(WORKER_BASE_URL || "").trim().replace(/\/+$/, "");
         const token = String(els.token.value || "").trim();
-        if (!base) return setOut({ ok: false, error: "missing baseUrl" });
         if (!token) return setOut({ ok: false, error: "missing token" });
 
         els.refresh.disabled = true;
@@ -113,6 +118,9 @@
       }
 
       els.refresh.addEventListener("click", load);
+      els.token.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") load();
+      });
     </script>
   </body>
 </html>
