@@ -25,7 +25,7 @@ const STORAGE_STUDENTS_BY_INSTRUCTOR = "acron_arf_v3_students_by_instructor";
 const STORAGE_STUDENT_COURSE_BY_INSTRUCTOR = "acron_arf_v3_student_course_by_instructor";
 const STORAGE_STUDENT_AIRCRAFT_BY_INSTRUCTOR = "acron_arf_v3_student_aircraft_by_instructor";
 const STORAGE_LEGACY_STUDENTS_MIGRATED = "acron_arf_v3_students_migrated_v1";
-/** Bucket when no instructor profile is committed (empty select + name not blurred to a profile). */
+/** Bucket when no instructor profile is committed (empty name / not yet blurred to a profile). */
 const STUDENTS_UNASSIGNED_KEY = "__unassigned__";
 const STORAGE_DRAFT = "acron_arf_v1_draft";
 const STORAGE_LAST_INSTRUCTOR = "acron_arf_v1_last_instructor";
@@ -34,8 +34,6 @@ const STORAGE_INSTRUCTOR_PROFILES = "acron_arf_v2_instructor_profiles";
 const STORAGE_LAST_ACTIVE_INSTRUCTOR = "acron_arf_v2_last_active_instructor";
 const STORAGE_INSTRUCTOR_ROSTER = "acron_arf_v2_instructor_roster";
 
-/** Prevents instructor <select> change handler while syncing from code. */
-let instructorSelectSuppress = false;
 const STORAGE_CADET = "acron_arf_v2_cadet_statuses";
 const STORAGE_FLIGHT_TYPES = "acron_arf_v2_flight_types";
 const STORAGE_EQUIPMENT = "acron_arf_v2_equipment_options";
@@ -114,7 +112,7 @@ function isoToWeekdayShort(iso) {
   return days[dt.getUTCDay()];
 }
 
-/** Instructor & date (request) → default "Date of Last Lesson" = two calendar days earlier (YYYY-MM-DD). */
+/** Request date (YYYY-MM-DD) → default “Date of Last Lesson” = two calendar days earlier. */
 function defaultLastLessonDateFromRequestDate(requestIso) {
   if (!requestIso || !/^\d{4}-\d{2}-\d{2}$/.test(String(requestIso).trim())) return "";
   const [y, m, d] = String(requestIso).trim().split("-").map(Number);
@@ -126,7 +124,7 @@ function defaultLastLessonDateFromRequestDate(requestIso) {
   return `${yy}-${mm}-${dd}`;
 }
 
-/** Fill last-lesson date on rows that are still empty (e.g. after load). */
+/** Fill last-lesson date on rows that are still empty (e.g. after load or clear row). */
 function applyLastLessonDefaultWhereEmpty() {
   const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
   if (!dl) return false;
@@ -628,12 +626,6 @@ function saveInstructorRoster(list) {
 }
 
 /** Dropdown = roster ∪ saved profile names */
-function instructorNamesForDropdown() {
-  const s = new Set(loadInstructorRoster());
-  for (const n of listProfileNames()) s.add(n);
-  return [...s].sort((a, b) => a.localeCompare(b, "en"));
-}
-
 function ensureInstructorRosterSeededFromLegacy() {
   if (loadInstructorRoster().length) return;
   const seed = [...new Set([...listProfileNames(), ...loadInstructorHistory()])].filter(Boolean);
@@ -648,8 +640,19 @@ function rememberInstructorRosterName(name) {
   saveInstructorRoster([...cur, t]);
 }
 
+function refreshInstructorDatalist() {
+  const dl = document.getElementById("instructorNameDatalist");
+  if (!dl) return;
+  dl.innerHTML = "";
+  const set = new Set([...listProfileNames(), ...loadInstructorRoster()]);
+  for (const n of [...set].sort((a, b) => a.localeCompare(b, "en"))) {
+    const opt = document.createElement("option");
+    opt.value = n;
+    dl.appendChild(opt);
+  }
+}
+
 const els = {
-  instructorProfileSelect: document.getElementById("instructorProfileSelect"),
   instructorName: document.getElementById("instructorName"),
   requestDay: document.getElementById("requestDay"),
   requestDate: document.getElementById("requestDate"),
@@ -659,39 +662,12 @@ const els = {
   nameModal: document.getElementById("nameModal"),
   nameList: document.getElementById("nameList"),
   newStudentName: document.getElementById("newStudentName"),
-  instructorNameModal: document.getElementById("instructorNameModal"),
-  instructorRosterList: document.getElementById("instructorRosterList"),
-  newInstructorRosterName: document.getElementById("newInstructorRosterName"),
-  instructorProfileModal: document.getElementById("instructorProfileModal"),
-  instructorProfileList: document.getElementById("instructorProfileList"),
   listEditorModal: document.getElementById("listEditorModal"),
   listEditorTitle: document.getElementById("listEditorTitle"),
   listEditorHint: document.getElementById("listEditorHint"),
   listEditorList: document.getElementById("listEditorList"),
   listEditorNew: document.getElementById("listEditorNew"),
 };
-
-function refreshInstructorProfileSelect() {
-  const sel = els.instructorProfileSelect;
-  if (!sel) return;
-  const names = instructorNamesForDropdown();
-  const cur = profileKey(state.instructorName);
-  instructorSelectSuppress = true;
-  sel.replaceChildren();
-  const opt0 = document.createElement("option");
-  opt0.value = "";
-  opt0.textContent = "— Select instructor —";
-  sel.appendChild(opt0);
-  for (const n of names) {
-    const o = document.createElement("option");
-    o.value = n;
-    o.textContent = n;
-    sel.appendChild(o);
-  }
-  if (cur && names.includes(cur)) sel.value = cur;
-  else sel.value = "";
-  instructorSelectSuppress = false;
-}
 
 function persistSoon() {
   clearTimeout(persistSoon._t);
@@ -700,7 +676,7 @@ function persistSoon() {
     const cur = profileKey(snap.instructorName);
     rememberInstructorName(snap.instructorName);
     rememberInstructorRosterName(snap.instructorName);
-    refreshInstructorProfileSelect();
+    refreshInstructorDatalist();
     saveDraft(snap);
     if (profileSaveKey && cur === profileSaveKey) {
       saveProfile(profileSaveKey, snap);
@@ -724,7 +700,7 @@ function ensureGroupManagerSelectValue() {
 }
 
 function applyStateToDom() {
-  refreshInstructorProfileSelect();
+  refreshInstructorDatalist();
   els.instructorName.value = state.instructorName;
   els.requestDay.value = state.requestDay;
   els.requestDate.value = state.requestDate;
@@ -752,55 +728,24 @@ function applyStateToDom() {
 }
 
 function bindHeader() {
-  els.instructorProfileSelect.addEventListener("change", () => {
-    if (instructorSelectSuppress) return;
-    persistStudentsAndCourses(studentBucketKey());
-    const prevKey = profileKey(state.instructorName);
-    if (prevKey) saveProfile(prevKey, draftSnapshot());
-    const selVal = els.instructorProfileSelect.value;
-    setLastActiveInstructor(selVal);
-    if (!selVal) {
-      state = defaultEmptyState();
-      state.instructorName = "";
-      profileSaveKey = "";
-    } else {
-      const prof = getProfile(selVal);
-      const st = prof ? normalizePayloadToState(prof) : null;
-      if (st) {
-        state = st;
-        state.instructorName = selVal;
-      } else {
-        state = defaultEmptyState();
-        state.instructorName = selVal;
-      }
-      profileSaveKey = profileKey(selVal);
-    }
-    const nextBucket = studentBucketKey();
-    students = loadStudentsListForKey(nextBucket);
-    studentCourseMap = loadCourseMapForKey(nextBucket);
-    studentAircraftMap = loadAircraftMapForKey(nextBucket);
-    applyStateToDom();
-    rememberInstructorName(state.instructorName);
-    persistSoon();
-  });
-
   els.instructorName.addEventListener("input", () => {
     state.instructorName = els.instructorName.value;
-    if (!instructorSelectSuppress) {
-      const v = profileKey(state.instructorName);
-      const names = instructorNamesForDropdown();
-      instructorSelectSuppress = true;
-      if (v && names.includes(v)) els.instructorProfileSelect.value = v;
-      else els.instructorProfileSelect.value = "";
-      instructorSelectSuppress = false;
-    }
     persistSoon();
   });
 
   els.instructorName.addEventListener("blur", () => {
-    const prevBucket = studentBucketKey();
+    const prevCommittedKey = profileSaveKey;
+    const typedKey = profileKey(state.instructorName);
+    const prevBucket = prevCommittedKey || STUDENTS_UNASSIGNED_KEY;
+
     persistStudentsAndCourses(prevBucket);
-    profileSaveKey = profileKey(state.instructorName);
+
+    if (prevCommittedKey && prevCommittedKey !== typedKey) {
+      saveProfile(prevCommittedKey, { ...draftSnapshot(), instructorName: prevCommittedKey });
+    }
+
+    profileSaveKey = typedKey;
+
     const nextBucket = studentBucketKey();
     if (nextBucket !== prevBucket) {
       students = loadStudentsListForKey(nextBucket);
@@ -810,12 +755,44 @@ function bindHeader() {
       syncAllDualEquipmentFromStudentDefaults();
       renderRows();
     }
-    const k = profileSaveKey;
-    if (k) {
-      saveProfile(k, draftSnapshot());
-      setLastActiveInstructor(k);
+
+    if (!typedKey) {
+      setLastActiveInstructor("");
+      applyStateToDom();
+      persistSoon();
+      return;
     }
-    refreshInstructorProfileSelect();
+
+    if (typedKey === prevCommittedKey) {
+      saveProfile(typedKey, draftSnapshot());
+      setLastActiveInstructor(typedKey);
+      applyStateToDom();
+      persistSoon();
+      return;
+    }
+
+    const prof = getProfile(typedKey);
+    if (prof) {
+      const st = normalizePayloadToState(prof);
+      if (st) {
+        state = st;
+        state.instructorName = typedKey;
+        profileSaveKey = typedKey;
+      } else {
+        state = defaultEmptyState();
+        state.instructorName = typedKey;
+        profileSaveKey = typedKey;
+      }
+    } else {
+      state = defaultEmptyState();
+      state.instructorName = typedKey;
+      profileSaveKey = typedKey;
+    }
+
+    if (els.nameModal.classList.contains("open")) renderNameList();
+    syncAllDualEquipmentFromStudentDefaults();
+    setLastActiveInstructor(typedKey);
+    applyStateToDom();
     persistSoon();
   });
   els.requestDay.addEventListener("input", () => {
@@ -996,17 +973,35 @@ function findLesson(courseId, code) {
   return c.lessons.find((l) => l.code === code) || null;
 }
 
+/** Inline SVG (eraser) for “clear row” — stroke uses currentColor from .schedule-row-icon-btn */
+const ROW_ERASER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.2 5.2c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>`;
+
+const ROW_TRASH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`;
+
 function renderRows() {
   els.scheduleRows.innerHTML = "";
+  const suggestedLastLesson = defaultLastLessonDateFromRequestDate(state.requestDate);
   state.rows.forEach((row, idx) => {
     const wrap = document.createElement("div");
     wrap.className = "schedule-row";
     wrap.dataset.rowIndex = String(idx);
     const equipList = equipmentOptionsForScheduleRow();
+    const lastLessonSuggestedClass =
+      suggestedLastLesson && String(row.lastLessonDate || "") === suggestedLastLesson ? " inp-lastlesson--suggested" : "";
     wrap.innerHTML = `
       <div class="schedule-row-head">
-        <span class="schedule-drag-handle" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
-        <h3>Row ${idx + 1}</h3>
+        <div class="schedule-row-head-left">
+          <span class="schedule-drag-handle" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
+          <h3>Row ${idx + 1}</h3>
+        </div>
+        <div class="schedule-row-actions">
+          <button type="button" class="schedule-row-icon-btn row-clear-btn" data-i="${idx}" title="Clear this row" aria-label="Clear this row">
+            ${ROW_ERASER_SVG}
+          </button>
+          <button type="button" class="schedule-row-icon-btn row-delete-btn" data-i="${idx}" title="Remove this row" aria-label="Remove this row">
+            ${ROW_TRASH_SVG}
+          </button>
+        </div>
       </div>
       <div class="row-grid">
         <div>
@@ -1043,7 +1038,7 @@ function renderRows() {
         </div>
         <div>
           <label>Date of Last Lesson</label>
-          <input type="date" class="inp-lastlesson" data-i="${idx}" value="${escapeAttr(row.lastLessonDate || "")}" />
+          <input type="date" class="inp-lastlesson${lastLessonSuggestedClass}" data-i="${idx}" value="${escapeAttr(row.lastLessonDate || "")}" />
         </div>
         <div style="grid-column: 1 / -1">
           <label>Remarks (English: max 12 uppercase / 16 lowercase characters)</label>
@@ -1052,6 +1047,23 @@ function renderRows() {
       </div>
     `;
     els.scheduleRows.appendChild(wrap);
+
+    wrap.querySelector(".row-clear-btn").addEventListener("click", () => {
+      state.rows[idx] = emptyRow();
+      applyLastLessonDefaultWhereEmpty();
+      renderRows();
+      persistSoon();
+    });
+    wrap.querySelector(".row-delete-btn").addEventListener("click", () => {
+      if (state.rows.length <= 1) {
+        alert("At least one schedule row is required.");
+        return;
+      }
+      if (!confirm("Remove this row?")) return;
+      state.rows.splice(idx, 1);
+      renderRows();
+      persistSoon();
+    });
 
     const dragHandle = wrap.querySelector(".schedule-drag-handle");
     if (dragHandle) {
@@ -1372,110 +1384,6 @@ function closeListEditor() {
   listEditorKind = null;
 }
 
-function renderInstructorProfileList() {
-  if (!els.instructorProfileList) return;
-  els.instructorProfileList.innerHTML = "";
-  const names = listProfileNames();
-  if (!names.length) {
-    els.instructorProfileList.innerHTML = '<li class="hint">No saved profiles yet. Fill the form and type an instructor name — it saves automatically.</li>';
-    return;
-  }
-  names.forEach((name) => {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.className = "student-name-cell";
-    span.textContent = name;
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "btn-danger";
-    del.textContent = "Delete";
-    del.addEventListener("click", () => {
-      if (!confirm(`Delete saved profile for "${name}"?`)) return;
-      deleteProfile(name);
-      deleteStudentsDataForInstructor(name);
-      if (profileKey(state.instructorName) === name) {
-        state = defaultEmptyState();
-        state.instructorName = "";
-        profileSaveKey = "";
-        students = loadStudentsListForKey(studentBucketKey());
-        studentCourseMap = loadCourseMapForKey(studentBucketKey());
-        studentAircraftMap = loadAircraftMapForKey(studentBucketKey());
-        applyStateToDom();
-      }
-      refreshInstructorProfileSelect();
-      renderInstructorProfileList();
-      persistSoon();
-    });
-    li.appendChild(span);
-    li.appendChild(del);
-    els.instructorProfileList.appendChild(li);
-  });
-}
-
-function renderInstructorRosterList() {
-  if (!els.instructorRosterList) return;
-  els.instructorRosterList.innerHTML = "";
-  const names = loadInstructorRoster();
-  if (!names.length) {
-    els.instructorRosterList.innerHTML = '<li class="hint">No names yet.</li>';
-    return;
-  }
-  names.forEach((name) => {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.className = "student-name-cell";
-    span.textContent = name;
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "btn-danger";
-    del.textContent = "Remove";
-    del.addEventListener("click", () => {
-      saveInstructorRoster(loadInstructorRoster().filter((x) => x !== name));
-      renderInstructorRosterList();
-      refreshInstructorProfileSelect();
-    });
-    li.appendChild(span);
-    li.appendChild(del);
-    els.instructorRosterList.appendChild(li);
-  });
-}
-
-function openInstructorNameModal() {
-  if (!els.instructorNameModal) return;
-  renderInstructorRosterList();
-  els.instructorNameModal.classList.add("open");
-  els.instructorNameModal.setAttribute("aria-hidden", "false");
-}
-
-function closeInstructorNameModal() {
-  if (!els.instructorNameModal) return;
-  els.instructorNameModal.classList.remove("open");
-  els.instructorNameModal.setAttribute("aria-hidden", "true");
-}
-
-function addInstructorRosterEntry() {
-  const n = els.newInstructorRosterName?.value?.trim();
-  if (!n) return;
-  const cur = loadInstructorRoster();
-  if (!cur.some((x) => x.toLowerCase() === n.toLowerCase())) saveInstructorRoster([...cur, n]);
-  els.newInstructorRosterName.value = "";
-  renderInstructorRosterList();
-  refreshInstructorProfileSelect();
-}
-
-function openInstructorProfileModal() {
-  if (!els.instructorProfileModal) return;
-  renderInstructorProfileList();
-  els.instructorProfileModal.classList.add("open");
-  els.instructorProfileModal.setAttribute("aria-hidden", "false");
-}
-
-function closeInstructorProfileModal() {
-  if (!els.instructorProfileModal) return;
-  els.instructorProfileModal.classList.remove("open");
-  els.instructorProfileModal.setAttribute("aria-hidden", "true");
-}
-
 function addListEditorItem() {
   const v = els.listEditorNew.value.trim();
   if (!v || !listEditorKind) return;
@@ -1599,25 +1507,6 @@ function init() {
     }
   });
 
-  document.getElementById("openInstructorNameModal")?.addEventListener("click", openInstructorNameModal);
-  document.getElementById("closeInstructorNameModal")?.addEventListener("click", closeInstructorNameModal);
-  els.instructorNameModal?.addEventListener("click", (e) => {
-    if (e.target === els.instructorNameModal) closeInstructorNameModal();
-  });
-  document.getElementById("addInstructorRosterBtn")?.addEventListener("click", addInstructorRosterEntry);
-  els.newInstructorRosterName?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addInstructorRosterEntry();
-    }
-  });
-
-  document.getElementById("openInstructorProfileModal")?.addEventListener("click", openInstructorProfileModal);
-  document.getElementById("closeInstructorProfileModal")?.addEventListener("click", closeInstructorProfileModal);
-  els.instructorProfileModal?.addEventListener("click", (e) => {
-    if (e.target === els.instructorProfileModal) closeInstructorProfileModal();
-  });
-
   document.getElementById("openCadetListEditor").addEventListener("click", () => openListEditor("cadet"));
   document.getElementById("openFlightTypeListEditor").addEventListener("click", () => openListEditor("flightType"));
   document.getElementById("openEquipmentListEditor").addEventListener("click", () => openListEditor("equipment"));
@@ -1647,10 +1536,8 @@ function init() {
   });
   document.getElementById("clearRows").addEventListener("click", () => {
     if (!confirm("Clear all schedule rows?")) return;
-    const row = emptyRow();
-    const dl = defaultLastLessonDateFromRequestDate(state.requestDate);
-    if (dl) row.lastLessonDate = dl;
-    state.rows = [row];
+    state.rows = [emptyRow()];
+    applyLastLessonDefaultWhereEmpty();
     renderRows();
     persistSoon();
   });

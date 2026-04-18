@@ -5,41 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>Acron Aviation ARF Auto Filling Tool</title>
+    <title>ARF Filler</title>
     <!-- Bump ?v= when shipping so Safari/GitHub Pages drop stale JS/CSS (must match app.js entry). -->
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=12" />
   </head>
   <body>
     <header class="app-header">
-      <h1>Acron Aviation ARF Auto Filling Tool</h1>
-      <div class="app-header-taglines">
-        <p>The form and each instructor’s student name list are saved separately per profile on this device.</p>
-      </div>
+      <h1>ARF Filler</h1>
     </header>
 
     <main>
       <section class="card">
         <h2>Instructor</h2>
-        <div class="grid-2">
-          <div>
-            <label for="instructorProfileSelect">Instructor</label>
-            <select id="instructorProfileSelect" aria-label="Load saved instructor profile">
-              <option value="">— Select instructor —</option>
-            </select>
-            <div class="row-toolbar" style="margin-top: 0.35rem; flex-wrap: wrap">
-              <button type="button" class="btn-secondary" id="openInstructorNameModal">Manage instructor names</button>
-              <button type="button" class="btn-secondary" id="openInstructorProfileModal">Manage instructor profiles</button>
-            </div>
-            <p class="hint" style="margin: 0.35rem 0 0">
-              Names list is like the student list; each profile stores form data for that instructor (qualifications, rows, notes, group manager).
-            </p>
-          </div>
-          <div>
-            <label for="instructorName">Instructor name (editable)</label>
-            <input type="text" id="instructorName" name="instructorName" autocomplete="name" />
-          </div>
+        <div class="instructor-name-block">
+          <input
+            type="text"
+            id="instructorName"
+            name="instructorName"
+            list="instructorNameDatalist"
+            autocomplete="name"
+            aria-label="Instructor name"
+            placeholder="Full name"
+          />
+          <datalist id="instructorNameDatalist"></datalist>
         </div>
+      </section>
 
+      <section class="card">
+        <h2>Qualifications</h2>
         <h3 class="subheading">1. Instructor qualifications</h3>
         <div class="aircraft-row" id="qualInstructor">
           <label class="cb"><input type="checkbox" data-q="instructor" data-k="CFI" /> CFI</label>
@@ -74,9 +67,6 @@
 
       <section class="card no-print">
         <h2>Student names &amp; lists</h2>
-        <p class="hint">
-          Student names are kept per instructor profile; cadet / type / equipment lists below are shared for this browser.
-        </p>
         <div class="row-toolbar">
           <button type="button" class="btn-primary" id="openNameManager">Manage names</button>
           <button type="button" class="btn-secondary" id="openCadetListEditor">Cadet status list</button>
@@ -119,7 +109,6 @@
           <option value="">— Select —</option>
           <option value="ERIC DONAHUE">ERIC DONAHUE</option>
           <option value="IAN OBRIEN">IAN OBRIEN</option>
-          <option value="ERICA LAMPHIER">ERICA LAMPHIER</option>
           <option value="CYLE RAZEE">CYLE RAZEE</option>
           <option value="JOHN SLICK">JOHN SLICK</option>
           <option value="RICK NILSSON (UK)">RICK NILSSON (UK)</option>
@@ -132,7 +121,6 @@
 
       <section class="card no-print" aria-labelledby="tco-downloads-heading">
         <h2 id="tco-downloads-heading">TCO PDF downloads</h2>
-        <p class="hint">Download reference TCO PDFs below.</p>
         <ul class="tco-download-list">
           <li>
             <a href="tco/TCO-PPC-Private-Pilot-ASEL.pdf" download="TCO-PPC-Private-Pilot-ASEL.pdf">PPC — Private Pilot ASEL (PPC)</a>
@@ -155,6 +143,19 @@
       </section>
     </main>
 
+    <footer class="app-footer no-print" aria-label="Page notes">
+      <div class="app-footer-inner card">
+        <h2 class="app-footer-title">About this page</h2>
+        <ul class="app-footer-notes">
+          <li>The form and each instructor’s student name list are saved separately per profile on this device.</li>
+          <li>Student names are kept per instructor profile; cadet / type / equipment lists in “Student names &amp; lists” are shared for this browser.</li>
+          <li>
+            Instructor profiles load when you leave the name field (<kbd>Tab</kbd> or click elsewhere) and the name matches a saved profile exactly (suggestions appear as you type). New names start with a blank schedule until you fill them in.
+          </li>
+        </ul>
+      </div>
+    </footer>
+
     <div class="modal-backdrop" id="nameModal" aria-hidden="true">
       <div class="modal" role="dialog" aria-labelledby="nameModalTitle">
         <h2 id="nameModalTitle">Student names</h2>
@@ -170,33 +171,6 @@
         </div>
         <ul class="name-list" id="nameList"></ul>
         <button type="button" class="btn-secondary" id="closeNameModal" style="width: 100%">Close</button>
-      </div>
-    </div>
-
-    <div class="modal-backdrop" id="instructorNameModal" aria-hidden="true">
-      <div class="modal" role="dialog" aria-labelledby="instructorNameModalTitle">
-        <h2 id="instructorNameModalTitle">Instructor names</h2>
-        <p class="hint" style="margin-top: 0">Names appear in the instructor dropdown. Removing a name does not delete its saved profile.</p>
-        <div>
-          <label for="newInstructorRosterName">Add name</label>
-          <div class="row-toolbar" style="margin-top: 0.25rem">
-            <input type="text" id="newInstructorRosterName" style="flex: 1" placeholder="Full name" autocomplete="name" />
-            <button type="button" class="btn-primary" id="addInstructorRosterBtn">Add</button>
-          </div>
-        </div>
-        <ul class="name-list" id="instructorRosterList"></ul>
-        <button type="button" class="btn-secondary" id="closeInstructorNameModal" style="width: 100%">Close</button>
-      </div>
-    </div>
-
-    <div class="modal-backdrop" id="instructorProfileModal" aria-hidden="true">
-      <div class="modal" role="dialog" aria-labelledby="instructorProfileModalTitle">
-        <h2 id="instructorProfileModalTitle">Instructor profiles</h2>
-        <p class="hint" style="margin-top: 0">
-          Each profile stores instructor header, qualifications, schedule rows, notes, and group manager for that name. Delete a profile to remove it from the list (current form is not cleared until you reload or switch).
-        </p>
-        <ul class="name-list" id="instructorProfileList"></ul>
-        <button type="button" class="btn-secondary" id="closeInstructorProfileModal" style="width: 100%">Close</button>
       </div>
     </div>
 
@@ -216,6 +190,6 @@
       </div>
     </div>
 
-    <script type="module" src="app.js?v=18"></script>
+    <script type="module" src="app.js?v=22"></script>
   </body>
 </html>

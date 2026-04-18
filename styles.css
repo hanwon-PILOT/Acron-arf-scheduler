@@ -61,7 +61,67 @@ header.app-header p {
 main {
   max-width: 960px;
   margin: 0 auto;
-  padding: 1rem 1rem 3rem;
+  padding: 1rem 1rem 1.5rem;
+}
+
+.app-footer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1rem 2.5rem;
+}
+
+.app-footer-inner {
+  margin-bottom: 0;
+}
+
+.app-footer-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.app-footer-notes {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.app-footer-notes li + li {
+  margin-top: 0.45rem;
+}
+
+.app-footer-notes kbd {
+  font-size: 0.82em;
+  padding: 0.08em 0.35em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: #f4f6f3;
+}
+
+.instructor-name-block {
+  max-width: 28rem;
+}
+
+.instructor-name-block input {
+  width: 100%;
+}
+
+/* Auto “two days before request date” — value is real for PDF; UI shows muted. */
+input[type="date"].inp-lastlesson--suggested {
+  color: #a4ada4;
+}
+
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit,
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit-fields-wrapper,
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit-text,
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit-month-field,
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit-day-field,
+input[type="date"].inp-lastlesson--suggested::-webkit-datetime-edit-year-field {
+  color: #a4ada4;
+  -webkit-text-fill-color: #a4ada4;
 }
 
 .card {
@@ -179,15 +239,58 @@ button {
 .schedule-row-head {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: space-between;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.schedule-row-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .schedule-row-head h3 {
   margin: 0;
-  flex: 1;
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+.schedule-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.schedule-row-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.schedule-row-icon-btn:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.schedule-row-icon-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.schedule-row-icon-btn svg {
+  display: block;
 }
 
 .schedule-drag-handle {
