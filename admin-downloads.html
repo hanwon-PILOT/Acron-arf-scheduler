@@ -63,6 +63,53 @@
         border-radius: 10px;
         overflow: auto;
       }
+      .daily-wrap {
+        margin: 0.75rem 0 0 0;
+        overflow: auto;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      table.daily {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+      table.daily th,
+      table.daily td {
+        padding: 0.45rem 0.6rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      table.daily th {
+        background: rgba(0, 0, 0, 0.2);
+        font-weight: 600;
+      }
+      table.daily tr:last-child td {
+        border-bottom: 0;
+      }
+      table.daily td.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      table.daily tr.zero td {
+        opacity: 0.55;
+      }
+      .daily-caption {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin: 0.35rem 0 0 0;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
     </style>
   </head>
   <body>
@@ -77,9 +124,30 @@
       <label for="token">Admin token</label>
       <input id="token" type="password" autocomplete="current-password" placeholder="ADMIN_TOKEN" />
 
+      <p class="hint" style="margin-top: 0.75rem">
+        Daily table uses <strong>US Eastern</strong> calendar dates (<code>America/New_York</code>). Query: last
+        <label for="days" class="sr-only">number of days</label>
+        <input id="days" type="number" min="1" max="90" value="30" style="width: 4rem; display: inline-block; padding: 0.25rem 0.35rem" />
+        days.
+      </p>
+
       <button id="refresh">Refresh</button>
 
-      <h2 style="margin: 1.2rem 0 0.5rem 0; font-size: 1rem">Result</h2>
+      <h2 style="margin: 1.2rem 0 0.5rem 0; font-size: 1rem">Daily (New York)</h2>
+      <div id="dailyWrap" class="daily-wrap" hidden>
+        <table class="daily" aria-label="Downloads per US Eastern calendar day">
+          <thead>
+            <tr>
+              <th scope="col">Date (Eastern)</th>
+              <th scope="col" style="text-align: right">Downloads</th>
+            </tr>
+          </thead>
+          <tbody id="dailyBody"></tbody>
+        </table>
+      </div>
+      <p id="dailyCaption" class="daily-caption" hidden></p>
+
+      <h2 style="margin: 1.2rem 0 0.5rem 0; font-size: 1rem">Raw JSON</h2>
       <pre id="out">{ "ok": false, "note": "not loaded yet" }</pre>
     </main>
 
@@ -90,14 +158,53 @@
       const els = {
         baseDisplay: document.getElementById("baseDisplay"),
         token: document.getElementById("token"),
+        days: document.getElementById("days"),
         refresh: document.getElementById("refresh"),
+        dailyWrap: document.getElementById("dailyWrap"),
+        dailyBody: document.getElementById("dailyBody"),
+        dailyCaption: document.getElementById("dailyCaption"),
         out: document.getElementById("out"),
       };
 
       els.baseDisplay.textContent = WORKER_BASE_URL;
 
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
       function setOut(obj) {
         els.out.textContent = JSON.stringify(obj, null, 2);
+      }
+
+      function adminDaysParam() {
+        const n = parseInt(String(els.days.value || "30"), 10);
+        if (!Number.isFinite(n)) return 30;
+        return Math.min(90, Math.max(1, n));
+      }
+
+      function renderDailyTable(j) {
+        const byDay = j && Array.isArray(j.by_day) ? j.by_day : null;
+        if (!byDay || !byDay.length || !j.ok) {
+          els.dailyWrap.hidden = true;
+          els.dailyCaption.hidden = true;
+          els.dailyBody.innerHTML = "";
+          return;
+        }
+        els.dailyBody.innerHTML = "";
+        for (const row of byDay) {
+          const tr = document.createElement("tr");
+          if (Number(row.count) === 0) tr.classList.add("zero");
+          tr.innerHTML = `<td>${escapeHtml(row.date)}</td><td class="num">${escapeHtml(String(row.count))}</td>`;
+          els.dailyBody.appendChild(tr);
+        }
+        els.dailyWrap.hidden = false;
+        const cap = j.by_day_note || "";
+        els.dailyCaption.textContent = cap;
+        els.dailyCaption.hidden = !cap;
       }
 
       async function load() {
@@ -105,13 +212,25 @@
         const token = String(els.token.value || "").trim();
         if (!token) return setOut({ ok: false, error: "missing token" });
 
+        const days = adminDaysParam();
+        els.days.value = String(days);
+
         els.refresh.disabled = true;
         try {
-          const r = await fetch(`${base}/admin`, { headers: { "X-Admin-Token": token } });
+          const r = await fetch(`${base}/admin?days=${encodeURIComponent(days)}`, { headers: { "X-Admin-Token": token } });
           const j = await r.json().catch(() => null);
-          setOut({ status: r.status, ...(j || {}) });
+          const payload = { status: r.status, ...(j || {}) };
+          setOut(payload);
+          renderDailyTable(j || {});
+          if (r.status === 200 && j && j.ok && !Array.isArray(j.by_day)) {
+            els.dailyWrap.hidden = true;
+            els.dailyCaption.textContent =
+              "Daily breakdown is not available yet. Redeploy the Worker from this repo’s download-counter-worker folder (npm run deploy), then refresh.";
+            els.dailyCaption.hidden = false;
+          }
         } catch (e) {
           setOut({ ok: false, error: String(e && e.message ? e.message : e) });
+          renderDailyTable({});
         } finally {
           els.refresh.disabled = false;
         }

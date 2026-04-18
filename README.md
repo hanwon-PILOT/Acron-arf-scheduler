@@ -87,12 +87,12 @@ Then commit + push so GitHub Pages updates.
 
 ### View counts (admin-only)
 
-Open `admin-downloads.html` from your GitHub Pages site, paste:
+Open `admin-downloads.html` from your GitHub Pages site and enter your **admin token** (the Worker URL is fixed in that page).
 
-- Worker base URL
-- Admin token (your secret)
+- `GET /admin?days=30` with header `X-Admin-Token` returns `pdf_total` plus **`by_day`**: download counts per **US Eastern calendar day** (`America/New_York`, EST/EDT; newest first). Use `days` between 1 and 90.
+- Without a valid token it returns **401**.
 
-It calls `GET /admin` with `X-Admin-Token`. Without the token it returns 401.
+After changing the Worker code, run **`npm run deploy`** again in `download-counter-worker` so `/track` stores daily keys and `/admin` returns `by_day`.
 
 ## Optional CLI
 
