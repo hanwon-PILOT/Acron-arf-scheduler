@@ -112,6 +112,75 @@ function isoToWeekdayShort(iso) {
   return days[dt.getUTCDay()];
 }
 
+function isoToWeekdayLong(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return days[dt.getUTCDay()];
+}
+
+/** Request date → `M.D` (no leading zeros), e.g. April 13 → `4.13`. */
+function mdDotFromRequestIso(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+  const parts = iso.split("-").map(Number);
+  const mm = parts[1];
+  const dd = parts[2];
+  if (!Number.isFinite(mm) || !Number.isFinite(dd)) return "";
+  return `${mm}.${dd}`;
+}
+
+/** Title-ish case for filename parts; keeps all-caps parentheticals like `(UK)`. */
+function displayNameForFile(s) {
+  const t = String(s || "").trim();
+  if (!t) return "";
+  return t
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => {
+      if (/^\([A-Z]{1,12}\)$/.test(w)) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function weekdayNameForFilename() {
+  const iso = String(state.requestDate || "").trim();
+  if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    const long = isoToWeekdayLong(iso);
+    if (long) return long;
+  }
+  const short = String(state.requestDay || "").trim().toUpperCase();
+  const map = {
+    SUN: "Sunday",
+    MON: "Monday",
+    TUE: "Tuesday",
+    WED: "Wednesday",
+    THU: "Thursday",
+    FRI: "Friday",
+    SAT: "Saturday",
+  };
+  return map[short] || (short ? short.charAt(0) + short.slice(1).toLowerCase() : "Day");
+}
+
+function sanitizeDownloadBasename(name) {
+  let s = String(name).replace(/[/\\:*?"<>|]+/g, "");
+  s = s.replace(/\s+/g, " ").trim();
+  if (s.length > 180) s = s.slice(0, 180).trim();
+  return s || "ARF";
+}
+
+function buildArfPdfFilename() {
+  const iso = String(state.requestDate || "").trim();
+  const md = mdDotFromRequestIso(iso) || "nodate";
+  const instr = displayNameForFile(state.instructorName) || "Unknown";
+  const dow = weekdayNameForFilename();
+  const mgrRaw = String(state.groupManager || "").trim();
+  let base = `${md} ${instr} ${dow} ARF`;
+  if (mgrRaw) base += ` (${displayNameForFile(mgrRaw)})`;
+  return sanitizeDownloadBasename(base) + ".pdf";
+}
+
 /** Request date (YYYY-MM-DD) → default “Date of Last Lesson” = two calendar days earlier. */
 function defaultLastLessonDateFromRequestDate(requestIso) {
   if (!requestIso || !/^\d{4}-\d{2}-\d{2}$/.test(String(requestIso).trim())) return "";
@@ -1554,8 +1623,7 @@ function init() {
       syncQualificationCheckboxesFromState();
       persistSoon();
       const filled = await fillArfTemplate(bytes, exportPayload());
-      const safeDate = (state.requestDate || "draft").replace(/\//g, "-");
-      downloadPdfBytes(filled, `ARF-${safeDate}.pdf`);
+      downloadPdfBytes(filled, buildArfPdfFilename());
     } catch (err) {
       console.error(err);
       alert(`Could not build PDF: ${err && err.message ? err.message : String(err)}`);
